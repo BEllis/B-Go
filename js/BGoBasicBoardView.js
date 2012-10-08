@@ -23,13 +23,21 @@
 			if (state.state == BGoStoneState.black || state.state == BGoStoneState.white)
 			{
 				// play stone
-				re.attr({r:0, fill:state.state}).animate({r:stoneSize * 0.9}, 1500, 'elastic').show();
+				
+				if (state.state == BGoStoneState.black) {
+					var fillCode = 'r(0.3,0.3)#DDD-#000';
+				}
+				else {
+					var fillCode = 'r(0.3,0.3)#FFF-#888';
+				}
+				
+				re.attr({r:0, fill:fillCode, opacity:0.0}).animate({opacity:1.0}, 500).show().animate({r:stoneSize * 0.9,}, 1500, 'elastic');
 			}
 
 			if (state.state == BGoStoneState.empty && (state.previousState == BGoStoneState.black || state.previousState == BGoStoneState.white))
 			{
 				// capture stone
-				re.animate({r:0}, 1000, (function(re) { return function() { re.hide().data('isVisible', false); } } )(re));
+				re.animate({r:0, opacity:0.0}, 1000, (function(re) { return function() { re.hide().data('isVisible', false); } } )(re));
 			}
 		} 
 	}; 
@@ -46,7 +54,8 @@
     	
     		var boardSize = viewModel.boardSize;    		
 		    var boardSizeInPixels = (boardSize + 1) * stoneSize * 2;
-		    var lineThickness = 1; // 2 * ((viewModel.boardSize * 300) / boardContainer.width());
+		    var boardLineThickness = 1;
+			var stoneLineThickness = 0.5;
 	 	    var paper = Raphael(boardContainer.get(0), boardContainer.width(), boardContainer.width());
 	 	    paper.setViewBox(0,0,boardSizeInPixels,boardSizeInPixels);
 
@@ -56,13 +65,13 @@
 					{
 						'fill'			: 'rgb(242,193,48)',
 						'stroke'		: 'rgb(0,0,0)',
-						'stroke-width'	: lineThickness
+						'stroke-width'	: boardLineThickness
 					});
 			
 			// Board Grid
 			for (var i = 0; i < boardSize; i++) {
 			
-			    var drawGridLine = function(x1, y1, x2, y2) { paper.path("M" + x1 + "," + y1 + "L" + x2 + "," + y2).attr({stroke:'rgb(0,0,0)','stroke-width':lineThickness}); }
+			    var drawGridLine = function(x1, y1, x2, y2) { paper.path("M" + x1 + "," + y1 + "L" + x2 + "," + y2).attr({stroke:'rgb(0,0,0)','stroke-width':boardLineThickness}); }
 				var increment = ((i + 1) * stoneSize * 2);
 				var near = (stoneSize * 2);
 				var far = ((boardSize) * (stoneSize * 2));
@@ -118,7 +127,7 @@
 	        for (var y = 1; y <= boardSize; y++) {
 	        	for (var x = 1; x <= boardSize; x++) {
 	        		(function(u,v) {
-	        			var stone = paper.circle(u * stoneSize * 2,v * stoneSize * 2,stoneSize * 0.9).attr({fill:'white', stroke:'black', 'stroke-width' : lineThickness}).hide().data('isVisible', false);
+	        			var stone = paper.circle(u * stoneSize * 2,v * stoneSize * 2,stoneSize * 0.9).attr({fill:'white', stroke:'#333', 'stroke-width' : stoneLineThickness}).hide().data('isVisible', false);
 	        			stone.node.raphaelElement = stone;
 	        			$(stone.node).attr('data-bind', 'bgoBasicViewStoneStateChanged : bgoMasterVM[' + viewModel.id + '].boardState[' + (u - 1 + ((v - 1) * boardSize)) + ']');  
 	        			view.stones.push(stone);
@@ -127,7 +136,7 @@
 	        }
 			
 			// Add movement placeholder
-			var movePlaceHolder = paper.circle(0, 0, stoneSize * 0.9).attr({opacity: 0.3, fill:'white', stroke:'black', 'stroke-width' : lineThickness});
+			var movePlaceHolder = paper.circle(0, 0, stoneSize * 0.9).attr({opacity: 0.3, fill:'white', stroke:'black', 'stroke-width' : stoneLineThickness});
 			
 			view.showMovePlaceHolder = function(x, y, color) {
 				movePlaceHolder.attr({fill:color});
