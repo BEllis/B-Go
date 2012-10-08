@@ -23,13 +23,21 @@
 			if (state.state == BGoStoneState.black || state.state == BGoStoneState.white)
 			{
 				// play stone
-				re.attr({r:0, fill:state.state}).animate({r:stoneSize * 0.9}, 1500, 'elastic').show();
+				
+				if (state.state == BGoStoneState.black) {
+					var fillCode = 'r(0.20,0.20)#fff-#000';
+				}
+				else {
+					var fillCode = 'r(0.20,0.20)#FFF-#888';
+				}
+				
+				re.attr({r:0, fill:fillCode, opacity:0.0}).animate({opacity:1.0}, 500).show().animate({r:stoneSize * 0.9,}, 1500, 'elastic');
 			}
 
 			if (state.state == BGoStoneState.empty && (state.previousState == BGoStoneState.black || state.previousState == BGoStoneState.white))
 			{
 				// capture stone
-				re.animate({r:0}, 1000, (function(re) { return function() { re.hide().data('isVisible', false); } } )(re));
+				re.animate({r:0, opacity:0.0}, 1000, (function(re) { return function() { re.hide().data('isVisible', false); } } )(re));
 			}
 		} 
 	}; 
