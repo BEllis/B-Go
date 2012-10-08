@@ -125,23 +125,6 @@
 	        		})(x,y)
 	        	}
 	        }
-	        
-	        /*
-	        view.playStone = function(x,y,color) {
-	        	
-	        }
-	        
-	        view.placeStone = function(x,y,color) {
-				view.stones[x - 1 + ((y - 1) * boardSize)].attr({fill:color,r:stoneSize * 0.9}).show().data('isVisible', true);
-			}
-			
-			view.removeStone = function(x,y) {
-				view.stones[x - 1 + ((y - 1) * boardSize)].hide();
-			}
-			
-			view.captureStone = function(x,y) {
-				view.stones[x - 1 + ((y - 1) * boardSize)].animate({r:0}, 2000, function() { view.stones[x - 1 + ((y - 1) * boardSize)].hide().data('isVisible', false); });
-			} */
 			
 			// Add movement placeholder
 			var movePlaceHolder = paper.circle(0, 0, stoneSize * 0.9).attr({opacity: 0.3, fill:'white', stroke:'black', 'stroke-width' : lineThickness});

@@ -28,7 +28,95 @@
 		self.x = x;
 		self.y = y;
 		
-		self.checkForSuicide = function() {}; // Updates playableByBlack and playanbleByWhite depending on whether the move is illegal due to suicide.
+		var updateTouchingGroups = function(x,y) {
+
+			return (function() {
+
+				var selfTouchingGroup = new StoneString(viewModel,x,y);
+				var stoneStrings = getNeighbourGroups(x,y); 
+				
+				// Update groups.
+				for (var i = 0; i < stoneStrings.length; i++)
+				{				
+					
+					// Subtract the liberty from all groups.
+					stoneStrings[i].liberties.splice($.inArray(self, stoneStrings[i].liberties), 1);
+					
+					// Union friendly groups together.
+					if (stoneStrings[i].owner == viewModel.currentPlayer())
+					{
+						selfTouchingGroup.union(stoneStrings[i]);
+					}
+				}
+				
+				return stoneStrings;
+			})();
+		}; 
+		
+		var captureGroup = function(capturedGroup) {
+			
+			(function() {
+			
+				// Mark stones as captured.
+				for (var i = 0; i < capturedGroup.stones.length; i++)
+				{
+					capturedGroup.stones[i].capture();
+				}
+				
+				capturedGroup.stones = null;
+				capturedGroup.liberties = null;
+				
+			})();
+		};
+		
+		var getNeighbourGroups = function(x,y) { 
+			
+			return (function() {
+				// Get neighbour groups.
+				var neighbourStoneStrings = new Array();
+				var currentStoneString = null;
+				if (x > 1) { currentStoneString = viewModel.getBoardState(x-1,y).stoneString; if (currentStoneString != null) { neighbourStoneStrings.push(currentStoneString); } };
+				if (x < viewModel.boardSize) { currentStoneString = viewModel.getBoardState(x+1,y).stoneString; if (currentStoneString != null) { neighbourStoneStrings.push(currentStoneString); } };
+				if (y > 1) { currentStoneString = viewModel.getBoardState(x,y-1).stoneString; if (currentStoneString != null) { neighbourStoneStrings.push(currentStoneString); } };
+				if (y < viewModel.boardSize) { currentStoneString = viewModel.getBoardState(x,y+1).stoneString; if (currentStoneString != null) { neighbourStoneStrings.push(currentStoneString); } };
+			
+				// Find Duplicates
+				var alreadyProcessed = new Array();
+				var toRemove = new Array();
+				for (var i = 0; i < neighbourStoneStrings.length; i++)
+				{
+					if ($.inArray(neighbourStoneStrings[i], alreadyProcessed) == -1)
+					{
+						alreadyProcessed.push(neighbourStoneStrings[i]);
+					}
+					else
+					{
+						toRemove.push(i);
+					}
+				}
+				
+				// Remove duplicates
+				for (var i = toRemove.length - 1; i >= 0; i--)
+				{
+					neighbourStoneStrings.splice(toRemove[i], 1);
+				}
+				
+				return neighbourStoneStrings;
+			})();
+		};
+		
+		self.checkForSuicide = function() {}; // TODO: Updates playableByBlack and playanbleByWhite depending on whether the move is illegal due to suicide.
+		
+		self.capture = function() {
+			
+			self.previousState = self.state;
+			self.state = BGoStoneState.empty;
+			self.stringGroup = null;
+			// Add liberty to neighbour groups.
+			
+			self.koobservable(self);
+			
+		}
 		
 		self.playMove = function() {
 			
@@ -36,71 +124,6 @@
 			{
 				self.state = viewModel.currentPlayer();
 				self.moveNumber = viewModel.moveNumber++;
-				
-				var updateTouchingGroups = function(x,y) {
-
-					var selfTouchingGroup = new StoneString(viewModel,x,y);
-					
-					// Get neighbour groups.
-					var touchingGroupsReturnValue = new Array();
-					var currentStoneString = null;
-					if (x > 1) { currentStoneString = viewModel.getBoardState(x-1,y).stoneString; if (currentStoneString != null) { touchingGroupsReturnValue.push(currentStoneString); } };
-					if (x < viewModel.boardSize) { currentStoneString = viewModel.getBoardState(x+1,y).stoneString; if (currentStoneString != null) { touchingGroupsReturnValue.push(currentStoneString); } };
-					if (y > 1) { currentStoneString = viewModel.getBoardState(x,y-1).stoneString; if (currentStoneString != null) { touchingGroupsReturnValue.push(currentStoneString); } };
-					if (y < viewModel.boardSize) { currentStoneString = viewModel.getBoardState(x,y+1).stoneString; if (currentStoneString != null) { touchingGroupsReturnValue.push(currentStoneString); } };
-				
-					// Find Duplicates
-					var alreadyProcessed = new Array();
-					var toRemove = new Array();
-					for (var i = 0; i < touchingGroupsReturnValue.length; i++)
-					{
-						// Remove duplicate entries.
-						if ($.inArray(touchingGroupsReturnValue[i], alreadyProcessed) == -1)
-						{
-							alreadyProcessed.push(touchingGroupsReturnValue[i]);
-						}
-						else
-						{
-							toRemove.push(i);
-						}
-					}
-					
-					// Remove duplicates
-					for (var i = toRemove.length - 1; i >= 0; i--)
-					{
-						touchingGroupsReturnValue.splice(toRemove[i], 1);
-					}
-					
-					// Update groups.
-					for (var i = 0; i < touchingGroupsReturnValue.length; i++)
-					{				
-						
-						// Subtract the liberty from all groups.
-						touchingGroupsReturnValue[i].liberties.splice($.inArray(self, touchingGroupsReturnValue[i].liberties), 1);
-						
-						// Union friendly groups together.
-						if (touchingGroupsReturnValue[i].owner == viewModel.currentPlayer())
-						{
-							selfTouchingGroup.union(touchingGroupsReturnValue[i]);
-						}
-					}
-					
-					return touchingGroupsReturnValue;
-				};
-				
-				var captureGroup = function(capturedGroup) {
-					
-					for (var i = 0; i < capturedGroup.stones.length; i++)
-					{
-						capturedGroup.stones[i].previousState = capturedGroup.stones[i].state;
-						capturedGroup.stones[i].state = BGoStoneState.empty;
-						capturedGroup.stones[i].stringGroup = null;
-						capturedGroup.stones[i].koobservable(capturedGroup.stones[i]);
-					}
-					
-					capturedGroup.stones = null;
-					capturedGroup.liberties = null;
-				};
 				
 				// Update groups + liberty count after playing here.
 				var touchingGroups = updateTouchingGroups(self.x,self.y);
@@ -122,13 +145,14 @@
 						// Capture them
 						captureGroup(touchingGroup);
 						
+						alert('captured');
+						
 						// Check to see if playing here again is suicide.
 						self.checkForSuicide();
 					}
 				}
 			
-				self.koobservable(self); // Alert the view that the model has changed.
-				viewModel.togglePlayer(); 
+				self.koobservable(self); // Alert the view that the model has changed. 
 			}
 		}
 	}
@@ -184,38 +208,40 @@
     	}
 		
 		// Static Data
-		this.id = BGoMasterVM.push(this) - 1;
-		this.bgoMasterVM = BGoMasterVM;
-		this.boardSize = boardSize;
-		this.komi = komi;
-		this.handicap = handicap; 
+		var self = this;
+		self.id = BGoMasterVM.push(self) - 1;
+		self.bgoMasterVM = BGoMasterVM;
+		self.boardSize = boardSize;
+		self.komi = komi;
+		self.handicap = handicap; 
 
 		// Dynamic Data
-		this.moveNumber = ko.observable(1);
-		this.currentPlayer = ko.observable(BGoStoneState.black);
-		this.blackCaptures = ko.observable(0);
-		this.whiteCaptures = ko.observable(0);
-		this.boardState = new Array();
+		self.moveNumber = ko.observable(1);
+		self.currentPlayer = ko.observable(BGoStoneState.black);
+		self.blackCaptures = ko.observable(0);
+		self.whiteCaptures = ko.observable(0);
+		self.boardState = new Array();
 		for (var y = 1; y <= boardSize; y++) {
 			for (var x = 1; x <= boardSize; x++) {
-				var newState = ko.observable(new GoPointState(this, x, y));
+				var newState = ko.observable(new GoPointState(self, x, y));
 				newState().koobservable = newState;
-				this.boardState.push(newState);
+				self.boardState.push(newState);
 			}
 		}
 		
-		this.getBoardState = function(x,y) { return this.boardState[(x - 1 + ((y - 1) * this.boardSize))](); };
-		this.setBoardState = function(x,y, newState) { this.boardState[(x - 1 + ((y - 1) * this.boardSize))](newState); };
+		self.getBoardState = function(x,y) { return self.boardState[(x - 1 + ((y - 1) * self.boardSize))](); };
+		self.setBoardState = function(x,y, newState) { self.boardState[(x - 1 + ((y - 1) * self.boardSize))](newState); };
 		
 		// Behaviour
-		this.togglePlayer = function() { this.currentPlayer((this.currentPlayer() == BGoStoneState.black ? BGoStoneState.white : BGoStoneState.black)); };
-		this.userClick = function(x,y) {
+		self.togglePlayer = function() { self.currentPlayer((self.currentPlayer() == BGoStoneState.black ? BGoStoneState.white : BGoStoneState.black)); };
+		self.userClick = function(x,y) {
 						
-			this.getBoardState(x,y).playMove();
+			self.togglePlayer(); // Change turn
+			self.getBoardState(x,y).playMove();
 
 		} 
 		
-		return this;
+		return self;
 	}
 			
 	window.BGo = function(boardSize, komi, handicap) {
@@ -223,6 +249,8 @@
 		if(false === (this instanceof BGo)) {
         	return new BGo(boardSize, komi, handicap);
     	}
+    	
+    	var self = this;
 
 		if (boardSize == undefined)
 		{
@@ -238,8 +266,8 @@
 			handicap = 0;
 		}
 
-		this.viewModel = new BGoViewModel(boardSize, komi, handicap);			
-		return this;
+		self.viewModel = new BGoViewModel(boardSize, komi, handicap);			
+		return self;
 	}
 	
 })();
