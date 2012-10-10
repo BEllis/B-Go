@@ -18,29 +18,51 @@
 	        // and again whenever the associated observable changes value.
 			// Update the DOM element based on the supplied values here.
 			
-			var state = ko.utils.unwrapObservable(valueAccessor());
-			var re = element.raphaelElement;
-			if (state.state == BGoStoneState.black || state.state == BGoStoneState.white)
-			{
-				// play stone
-				
-				if (state.state == BGoStoneState.black) {
-					var fillCode = 'r(0.3,0.3)#DDD-#000';
+			(function() {
+			
+				var state = ko.utils.unwrapObservable(valueAccessor());
+				var re = element.raphaelElement;
+				if (state.state == BGoStoneState.black || state.state == BGoStoneState.white)
+				{
+					// play stone
+					
+					if (state.state == BGoStoneState.black) {
+						var fillCode = 'r(0.3,0.3)#DDD-#000';
+					}
+					else {
+						var fillCode = 'r(0.3,0.3)#FFF-#888';
+					}
+					
+					re.stop().attr({r:0, fill:fillCode, opacity:0.0}).animate({opacity:1.0}, 500).animate({r:stoneSize * 0.95,}, 1500, 'elastic').show().data('isVisible', true);
 				}
-				else {
-					var fillCode = 'r(0.3,0.3)#FFF-#888';
+	
+				if (state.state == BGoStoneState.empty && (state.previousState == BGoStoneState.black || state.previousState == BGoStoneState.white))
+				{
+					// capture stone
+					re.animate({r:0, opacity:0.0}, 1000, function() { if (state.state == BGoStoneState.empty) { re.hide().data('isVisible', false); } });
 				}
 				
-				re.attr({r:0, fill:fillCode, opacity:0.0}).animate({opacity:1.0}, 500).show().animate({r:stoneSize * 0.9,}, 1500, 'elastic');
-			}
-
-			if (state.state == BGoStoneState.empty && (state.previousState == BGoStoneState.black || state.previousState == BGoStoneState.white))
-			{
-				// capture stone
-				re.animate({r:0, opacity:0.0}, 1000, (function(re) { return function() { re.hide().data('isVisible', false); } } )(re));
-			}
+			})();
 		} 
 	}; 
+	
+    ko.bindingHandlers.bgoBasicViewCurrentPlayerChanged = {
+		init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+			// This will be called when the binding is first applied to an element
+			// Set up any initial state, event handlers, etc. here
+		},
+		update: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+			// This will be called once when the binding is first applied to an element,
+	        // and again whenever the associated observable changes value.
+			// Update the DOM element based on the supplied values here.
+			
+			var currentPlayer = ko.utils.unwrapObservable(valueAccessor());
+			var re = element.raphaelElement;
+			re.attr({fill:currentPlayer});
+		} 
+	}; 
+	
+	
     
     function BasicBoardViewClass(boardElement, viewModel) {
     	
@@ -122,12 +144,12 @@
 	        }
 	        
 	        // Add Stones
-	        var stoneSizeRatio = 0.9;
+	        var stoneSizeRatio = 0.95;
 	        view.stones = new Array();
 	        for (var y = 1; y <= boardSize; y++) {
 	        	for (var x = 1; x <= boardSize; x++) {
 	        		(function(u,v) {
-	        			var stone = paper.circle(u * stoneSize * 2,v * stoneSize * 2,stoneSize * 0.9).attr({fill:'white', stroke:'#333', 'stroke-width' : stoneLineThickness}).hide().data('isVisible', false);
+	        			var stone = paper.circle(u * stoneSize * 2,v * stoneSize * 2,stoneSize * 0.95).attr({fill:'white', stroke:'#333', 'stroke-width' : stoneLineThickness}).hide().data('isVisible', false);
 	        			stone.node.raphaelElement = stone;
 	        			$(stone.node).attr('data-bind', 'bgoBasicViewStoneStateChanged : bgoMasterVM[' + viewModel.id + '].boardState[' + (u - 1 + ((v - 1) * boardSize)) + ']');  
 	        			view.stones.push(stone);
@@ -136,12 +158,23 @@
 	        }
 			
 			// Add movement placeholder
-			var movePlaceHolder = paper.circle(0, 0, stoneSize * 0.9).attr({opacity: 0.3, fill:'white', stroke:'black', 'stroke-width' : stoneLineThickness});
+			var movePlaceHolder = paper.circle(0, 0, stoneSize * 0.95).attr({opacity: 0.3, fill:'white', stroke:'black', 'stroke-width' : stoneLineThickness}).hide();
+			movePlaceHolder.node.raphaelElement = movePlaceHolder;
+			$(movePlaceHolder.node).attr('data-bind', 'bgoBasicViewCurrentPlayerChanged : bgoMasterVM[' + viewModel.id + '].currentPlayer');
+			var moveNotAllowedPlaceHolder = paper.circle(0, 0, stoneSize * 0.95).attr({opacity: 0.3, fill:'red', stroke:'red', 'stroke-width' : stoneLineThickness}).hide();
 			
-			view.showMovePlaceHolder = function(x, y, color) {
-				movePlaceHolder.attr({fill:color});
+			view.showMovePlaceHolder = function(x, y) {
 				movePlaceHolder.show();
-				movePlaceHolder.animate({cx:x * stoneSize * 2,cy:y * stoneSize * 2}, 500);
+				movePlaceHolder.animate({cx:x * stoneSize * 2,cy:y * stoneSize * 2}, 250, '>');
+				moveNotAllowedPlaceHolder.animate({cx:x * stoneSize * 2,cy:y * stoneSize * 2}, 250, '>');
+				if (!viewModel.canPlay(x,y))
+				{
+					moveNotAllowedPlaceHolder.show();
+				}
+				else
+				{
+					moveNotAllowedPlaceHolder.hide();
+				}
 			}
 			
 			view.hideMovePlaceHolder = function() {
@@ -154,7 +187,7 @@
 			view.detectionPoints = new Array();
 	        for (var y = 1; y <= boardSize; y++) {
 	        	for (var x = 1; x <= boardSize; x++) {
-	        		view.detectionPoints.push(paper.rect((x * stoneSize * 2) - stoneSize,(y * stoneSize * 2) - stoneSize,stoneSize * 2,stoneSize * 2).attr({opacity:0.0, fill:'red', view:view}).click((function(u,v,vm) { return function() { vm.userClick(u,v); } })(x,y,viewModel)));	
+	        		view.detectionPoints.push(paper.rect((x * stoneSize * 2) - stoneSize,(y * stoneSize * 2) - stoneSize,stoneSize * 2,stoneSize * 2).attr({opacity:0.0, fill:'red', view:view}).click((function(u,v,vm) { return function() { vm.userClick(u,v); } })(x,y,viewModel)).mouseover((function(u,v,vm) { return function() { view.showMovePlaceHolder(u,v); } })(x,y,viewModel)));	
 	        	}
 	        }
 		

@@ -20,20 +20,24 @@
 		var self = this;
 		self.previousState = BGoStoneState.empty;
 		self.state = BGoStoneState.empty;
-		self.playableByBlack = true;
-		self.playableByWhite = true;
+		self.hasBeenPlayedByBlack = false;
+		self.hasBeenPlayedByWhite = false;
+		self.suicideForBlack = false;
+		self.suicideForWhite = false;
 		self.moveNumber = 0;
 		self.markUp = '';
 		self.stoneString = null;
 		self.x = x;
 		self.y = y;
 		
-		var updateTouchingGroups = function(x,y) {
+		var updateTouchingStoneStrings = function(x,y) {
 
 			return (function() {
 
-				var selfTouchingGroup = new StoneString(viewModel,x,y);
-				var stoneStrings = getNeighbourGroups(x,y); 
+				var selfTouchingStoneString = new StoneString(viewModel,x,y);
+				var libertiesThatNeedRecheckingForSuicide = selfTouchingStoneString.liberties;
+				var stoneStrings = self.getNeighbourStoneStrings();
+				var joinedAnExistingGroup = false;
 				
 				// Update groups.
 				for (var i = 0; i < stoneStrings.length; i++)
@@ -45,7 +49,19 @@
 					// Union friendly groups together.
 					if (stoneStrings[i].owner == viewModel.currentPlayer())
 					{
-						selfTouchingGroup.union(stoneStrings[i]);
+						joinedAnExistingGroup = true;
+						selfTouchingStoneString.union(stoneStrings[i]);
+					}
+				}
+				
+				if (!joinedAnExistingGroup && selfTouchingStoneString.liberties.length == 1)
+				{
+					selfTouchingStoneString.liberties[0].checkForSuicide();
+				}
+				else
+				{
+					for (var i = 0; i < libertiesThatNeedRecheckingForSuicide.length; i++) {
+						libertiesThatNeedRecheckingForSuicide[i].checkForSuicide();
 					}
 				}
 				
@@ -53,107 +69,206 @@
 			})();
 		}; 
 		
-		var captureGroup = function(capturedGroup) {
+		var captureStoneString = function(capturedStoneString) {
 			
 			(function() {
 			
 				// Mark stones as captured.
-				for (var i = 0; i < capturedGroup.stones.length; i++)
+				for (var i = 0; i < capturedStoneString.stones.length; i++)
 				{
-					capturedGroup.stones[i].capture();
+					var stone = capturedStoneString.stones[i];
+					stone.capture();
 				}
 				
-				capturedGroup.stones = null;
-				capturedGroup.liberties = null;
+				for (var i = 0; i < capturedStoneString.stones.length; i++)
+				{
+					var stone = capturedStoneString.stones[i];
+					var neighbourStoneStrings = stone.getNeighbourStoneStrings();
+					for (var j = 0; j < neighbourStoneStrings.length; j++)
+					{
+						neighbourStoneStrings[j].addLiberty(stone.x,stone.y);
+					}
+					
+					stone.checkForSuicide();
+				}
+				
+				capturedStoneString.stones = null;
+				capturedStoneString.liberties = null;
 				
 			})();
 		};
 		
-		var getNeighbourGroups = function(x,y) { 
+		self.getNeighbourStones = function() {
+			return(function () {
+				var neighbourStones = new Array();
+				if (x > 1) { neighbourStones.push(viewModel.getBoardState(x-1,y)); };
+				if (x < viewModel.boardSize) { neighbourStones.push(viewModel.getBoardState(x+1,y)); };
+				if (y > 1) { neighbourStones.push(viewModel.getBoardState(x,y-1)); };
+				if (y < viewModel.boardSize) { neighbourStones.push(viewModel.getBoardState(x,y+1)); };
+				return neighbourStones;
+			})();
+		}
+		
+		self.getNeighbourStoneStrings = function() { 
 			
 			return (function() {
-				// Get neighbour groups.
-				var neighbourStoneStrings = new Array();
-				var currentStoneString = null;
-				if (x > 1) { currentStoneString = viewModel.getBoardState(x-1,y).stoneString; if (currentStoneString != null) { neighbourStoneStrings.push(currentStoneString); } };
-				if (x < viewModel.boardSize) { currentStoneString = viewModel.getBoardState(x+1,y).stoneString; if (currentStoneString != null) { neighbourStoneStrings.push(currentStoneString); } };
-				if (y > 1) { currentStoneString = viewModel.getBoardState(x,y-1).stoneString; if (currentStoneString != null) { neighbourStoneStrings.push(currentStoneString); } };
-				if (y < viewModel.boardSize) { currentStoneString = viewModel.getBoardState(x,y+1).stoneString; if (currentStoneString != null) { neighbourStoneStrings.push(currentStoneString); } };
-			
-				// Find Duplicates
-				var alreadyProcessed = new Array();
-				var toRemove = new Array();
-				for (var i = 0; i < neighbourStoneStrings.length; i++)
-				{
-					if ($.inArray(neighbourStoneStrings[i], alreadyProcessed) == -1)
-					{
-						alreadyProcessed.push(neighbourStoneStrings[i]);
-					}
-					else
-					{
-						toRemove.push(i);
-					}
-				}
 				
-				// Remove duplicates
-				for (var i = toRemove.length - 1; i >= 0; i--)
+				var neighbourStoneStrings = new Array();
+				var neighbourStones = self.getNeighbourStones();
+				for (var i = 0; i < neighbourStones.length; i++)
 				{
-					neighbourStoneStrings.splice(toRemove[i], 1);
+					var stoneString = neighbourStones[i].stoneString;
+					
+					// If there is a stone string on a neighbour and we haven't already added it,
+					if (stoneString != null && $.inArray(stoneString, neighbourStoneStrings) == -1)
+					{
+						neighbourStoneStrings.push(stoneString);
+					}
 				}
 				
 				return neighbourStoneStrings;
 			})();
-		};
+		}; 
 		
-		self.checkForSuicide = function() {}; // TODO: Updates playableByBlack and playanbleByWhite depending on whether the move is illegal due to suicide.
+		self.moveIsLegalFor = function(color) {
+			return (function() {
+				if (self.state != BGoStoneState.empty)
+				{
+					return false;
+				}
+				
+				if (color == BGoStoneState.black)
+				{
+					return !self.suicideForBlack;
+				}
+				else
+				{
+					return !self.suicideForWhite;
+				}
+			})();
+		}  
+		
+		self.checkForSuicide = function() {
+			// Updates suicideForBlack and suicideForWhite depending on whether the move is illegal due to suicide.
+			(function() {
+				var neighbourStones = self.getNeighbourStones();
+				for (var i = 0; i < neighbourStones.length; i++) {
+					if (neighbourStones[i].state == BGoStoneState.empty)
+					{
+						self.suicideForBlack = false;
+						self.suicideForWhite = false;
+						return;
+					}
+				}
+				
+				var neighbourStoneStrings = self.getNeighbourStoneStrings(self.x, self.y);
+				var blackWouldBeCapturedByBlack = false;
+				var whiteWouldBeCapturedByBlack = false;
+				var blackWouldBeCapturedByWhite = false;
+				var whiteWouldBeCapturedByWhite = false;
+				
+				var blackStoneStringCount = 0;
+				var whiteStoneStringCount = 0;
+				
+				for (var i = 0; i < neighbourStoneStrings.length; i++)
+				{
+					// Check to see if playing here would capture any oppontent groups.
+					var stoneString = neighbourStoneStrings[i];
+					if (stoneString.owner == BGoStoneState.black) {
+						blackWouldBeCapturedByBlack |= stoneString.isCapturedByPlayingHere(self, BGoStoneState.black);
+					}
+					else
+					{
+						whiteWouldBeCapturedByBlack |= stoneString.isCapturedByPlayingHere(self, BGoStoneState.black);
+					}
+					
+					if (stoneString.owner == BGoStoneState.black) {
+						blackWouldBeCapturedByWhite |= stoneString.isCapturedByPlayingHere(self, BGoStoneState.white);
+					}
+					else
+					{
+						whiteWouldBeCapturedByWhite |= stoneString.isCapturedByPlayingHere(self, BGoStoneState.white);
+					}
+					
+					if (stoneString.owner == BGoStoneState.black)
+					{
+						blackStoneStringCount++;
+					}
+					else
+					{
+						whiteStoneStringCount++;
+					}
+				}
+				
+				self.suicideForBlack = (blackStoneStringCount == 0 && !whiteWouldBeCapturedByBlack) || (blackWouldBeCapturedByBlack && !whiteWouldBeCapturedByBlack);
+				self.suicideForWhite = (whiteStoneStringCount == 0 && !blackWouldBeCapturedByWhite) || (whiteWouldBeCapturedByWhite && !blackWouldBeCapturedByWhite);
+			})();
+		}; 
 		
 		self.capture = function() {
 			
 			self.previousState = self.state;
 			self.state = BGoStoneState.empty;
-			self.stringGroup = null;
-			// Add liberty to neighbour groups.
-			
+			self.stoneString = null;
 			self.koobservable(self);
 			
 		}
 		
-		self.playMove = function() {
+		self.playMove = function(color, moveNumber) {
 			
-			if (self.state == BGoStoneState.empty)
+			if (color == BGoStoneState.black)
 			{
-				self.state = viewModel.currentPlayer();
-				self.moveNumber = viewModel.moveNumber++;
-				
-				// Update groups + liberty count after playing here.
-				var touchingGroups = updateTouchingGroups(self.x,self.y);
-				
-				for (var i = 0; i < touchingGroups.length; i++)
-				{
-					var touchingGroup = touchingGroups[i];
-					
-					// if any touching groups have one liberty left
-					if (touchingGroup.liberties.length == 1)
-					{
-						// Check to see if playing here again is suicide.
-						touchingGroup.liberties[0].checkForSuicide();
-					}
-					
-					// if any of opponents touching groups have zero liberties, capture them, recheck liberties for legal move (Get groups + liberty count after playing there)
-					if (touchingGroup.owner != viewModel.currentPlayer() && touchingGroup.liberties.length == 0)
-					{
-						// Capture them
-						captureGroup(touchingGroup);
-						
-						alert('captured');
-						
-						// Check to see if playing here again is suicide.
-						self.checkForSuicide();
-					}
-				}
-			
-				self.koobservable(self); // Alert the view that the model has changed. 
+				var needToAddHash = self.hasBeenPlayedByBlack;
 			}
+			else
+			{
+				var needToAddHash = self.hasBeenPlayedByWhite;
+			}
+			
+			if (!needToAddHash)
+			{
+				viewModel.hashes = new Array();
+				if (color == BGoStoneState.black)
+				{
+					self.hasBeenPlayedByBlack = true;
+				}
+				else
+				{
+					self.hasBeenPlayedByWhite = true;
+				}
+			}
+			
+			self.state = color;
+			self.moveNumber = moveNumber;
+			
+			// Update groups + liberty count after playing here.
+			var touchingStoneStrings = updateTouchingStoneStrings(self.x,self.y);
+			
+			for (var i = 0; i < touchingStoneStrings.length; i++)
+			{
+				var touchingStoneString = touchingStoneStrings[i];
+				
+				// if any touching groups have one liberty left
+				if (touchingStoneString.liberties.length == 1)
+				{
+					// Check to see if playing at the last liberty is suicide.
+					touchingStoneString.liberties[0].checkForSuicide();
+				}
+				
+				// if any of opponents touching groups have zero liberties, capture them, recheck liberties for legal move (Get groups + liberty count after playing there)
+				if (touchingStoneString.owner != viewModel.currentPlayer() && touchingStoneString.liberties.length == 0)
+				{
+					// Capture them
+					captureStoneString(touchingStoneString);
+				}
+			}
+			
+			if (needToAddHash)
+			{
+				viewModel.hashes.push(viewModel.generateHash());
+			}
+		
+			self.koobservable(self); // Alert the view that the model has changed. 
 		}
 	}
 
@@ -183,12 +298,53 @@
 	    	}
 	    };
 	    
-    	var handleNeighbour = function(x2,y2) {
-    		var point = viewModel.getBoardState(x2,y2);
+	    self.addLiberty = function(x,y) {
+	    	(function() {
+	    		var point = viewModel.getBoardState(x,y);
+	    		self.liberties.push(point);
+	    		if (self.liberties.length == 2) {
+	    			self.liberties[0].checkForSuicide();	
+	    		}
+	    	})();
+	    }
+	    
+    	var handleNeighbour = function(x,y) {
+    		var point = viewModel.getBoardState(x,y);
     		if (point.state == BGoStoneState.empty && $.inArray(point, self.stones) == -1)
     		{
     			self.liberties.push(point);
     		}
+    	}
+    	
+    	self.isCapturedByPlayingHere = function(point, color) {
+    		return (function() {
+    			
+    			// NOTE: Assume there are no empty points (this should be checked before calling this function.)
+    			if (self.liberties.length > 1)
+    			{
+    				return false;
+    			}
+    			
+    			if (self.liberties.length == 1 && self.owner != color)
+    			{
+    				return true;
+    			}
+    			
+    			var stoneStrings = point.getNeighbourStoneStrings();
+    			var captured = true;
+    			for (var i = 0; i < stoneStrings.length; i++)
+    			{
+    				// If the placed stone is the same colour as this group and the other group is the same colour and it has more than one liberty left,
+    				if (stoneStrings[i] != self && stoneStrings[i].owner == color && stoneStrings[i].owner == stoneStrings[i].owner && stoneStrings[i].liberties.length > 1)
+    				{
+    					// Alive
+    					captured = false;
+    				}
+    			}
+    			
+    			return captured;
+    			
+    		})();
     	}
     	
     	if (x > 1) { handleNeighbour(x-1,y); }
@@ -217,6 +373,7 @@
 
 		// Dynamic Data
 		self.moveNumber = ko.observable(1);
+		self.hashes = new Array(); // needed for super-ko detection.
 		self.currentPlayer = ko.observable(BGoStoneState.black);
 		self.blackCaptures = ko.observable(0);
 		self.whiteCaptures = ko.observable(0);
@@ -230,14 +387,35 @@
 		}
 		
 		self.getBoardState = function(x,y) { return self.boardState[(x - 1 + ((y - 1) * self.boardSize))](); };
-		self.setBoardState = function(x,y, newState) { self.boardState[(x - 1 + ((y - 1) * self.boardSize))](newState); };
+		
+		self.generateHash = function()
+		{
+			var hash = '';
+			for (var i = 0; i < self.boardState.length; i++)
+			{
+				hash += self.boardState[i]().state.charAt(0);
+			}
+			
+			alert(hash);
+			
+			return hash;
+		}
 		
 		// Behaviour
 		self.togglePlayer = function() { self.currentPlayer((self.currentPlayer() == BGoStoneState.black ? BGoStoneState.white : BGoStoneState.black)); };
+		self.canPlay = function(x,y) {
+			return self.getBoardState(x,y).moveIsLegalFor(self.currentPlayer());
+		}
+		
 		self.userClick = function(x,y) {
-						
+
+			if (!self.canPlay(x,y))
+			{
+				return;
+			}
+			
+			self.getBoardState(x,y).playMove(self.currentPlayer(), self.moveNumber++);
 			self.togglePlayer(); // Change turn
-			self.getBoardState(x,y).playMove();
 
 		} 
 		
