@@ -89,22 +89,33 @@
 						'stroke'		: 'rgb(0,0,0)',
 						'stroke-width'	: boardLineThickness
 					});
-			
+
 			// Board Grid
 			for (var i = 0; i < boardSize; i++) {
-			
+
 			    var drawGridLine = function(x1, y1, x2, y2) { paper.path("M" + x1 + "," + y1 + "L" + x2 + "," + y2).attr({stroke:'rgb(0,0,0)','stroke-width':boardLineThickness}); }
 				var increment = ((i + 1) * stoneSize * 2);
 				var near = (stoneSize * 2);
 				var far = ((boardSize) * (stoneSize * 2));
-				
+
 				// Vertical Lines
 				drawGridLine(increment, near, increment, far);
 				
 				// Horizontal Lines
 				drawGridLine(near, increment, far, increment);
-				
+
 	        }
+			
+			// Board Coordinates
+			var coordinateFont = paper.getFont("Quivira");
+			for (var i = 0; i < boardSize; i++)
+			{
+				var increment = ((i + 1) * stoneSize * 2);
+				paper.print(increment, stoneSize / 2, String.fromCharCode(65 + i), coordinateFont, 12, 'middle', 1).attr({fill:'black'});
+				paper.circle(increment, stoneSize / 2, 4).attr({fill:'red'});
+				paper.print(stoneSize / 2, increment, i + 1, coordinateFont, 12, 'middle', 1).attr({fill:'black'});
+				paper.circle(stoneSize / 2, increment, 4).attr({fill:'red'});
+			}
 	        
 	        // Board Star Points
 	        var drawStarPoint = function(x,y) { paper.circle(stoneSize * 2 * x, stoneSize * 2 * y, stoneSize / 3).attr({fill:'black'}); }
