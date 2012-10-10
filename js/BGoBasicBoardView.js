@@ -59,10 +59,8 @@
 			var currentPlayer = ko.utils.unwrapObservable(valueAccessor());
 			var re = element.raphaelElement;
 			re.attr({fill:currentPlayer});
-		} 
-	}; 
-	
-	
+		}
+	};
     
     function BasicBoardViewClass(boardElement, viewModel) {
     	
@@ -107,15 +105,29 @@
 	        }
 			
 			// Board Coordinates
-			var coordinateFont = paper.getFont("Quivira");
-			for (var i = 0; i < boardSize; i++)
-			{
-				var increment = ((i + 1) * stoneSize * 2);
-				paper.print(increment, stoneSize / 2, String.fromCharCode(65 + i), coordinateFont, 12, 'middle', 1).attr({fill:'black'});
-				paper.circle(increment, stoneSize / 2, 4).attr({fill:'red'});
-				paper.print(stoneSize / 2, increment, i + 1, coordinateFont, 12, 'middle', 1).attr({fill:'black'});
-				paper.circle(stoneSize / 2, increment, 4).attr({fill:'red'});
-			}
+			(function() {
+				var centerPrint = function(tb, x1,y1) {
+					var bb = tb.getBBox();
+					var newx = x1 - bb.x - (bb.width / 2)
+					var newy = y1 - bb.y - (bb.height / 2);
+					return tb.transform('t' + newx + ',' + newy);					
+				}
+					
+				var coordinateFont = paper.getFont("Quivira");
+				for (var i = 0; i < boardSize; i++)
+				{
+					var increment = ((i + 1) * stoneSize * 2);
+					var textAdjustment = -15;
+					var text = paper.print(0, 0, String.fromCharCode(65 + i), coordinateFont, 12, 'middle', 0).attr({fill:'black'});
+					centerPrint(text, increment, (stoneSize / 2));
+					text = paper.print(0, 0, String.fromCharCode(65 + i), coordinateFont, 12, 'middle', 0).attr({fill:'black'});
+					centerPrint(text, increment, boardSizeInPixels - (stoneSize / 2));
+					text = paper.print(0, 0, i + 1, coordinateFont, 12, 'middle', 0).attr({fill:'black'});
+					centerPrint(text, (stoneSize / 2), increment);
+					text = paper.print(0, 0, i + 1, coordinateFont, 12, 'middle', 0).attr({fill:'black'});
+					centerPrint(text, boardSizeInPixels - (stoneSize / 2), increment);
+				}
+			})();
 	        
 	        // Board Star Points
 	        var drawStarPoint = function(x,y) { paper.circle(stoneSize * 2 * x, stoneSize * 2 * y, stoneSize / 3).attr({fill:'black'}); }
@@ -211,6 +223,69 @@
 	
     window.BGo.prototype.BasicBoardView = function(boardElement) {
     	this.basicBoardView = new BasicBoardViewClass(boardElement, this.viewModel);
+    	return this;
+    }
+})();
+
+
+(function() {
+    function BasicStatusViewClass(boardElement, viewModel) {
+    	if (false === (this instanceof BasicStatusViewClass)) {
+        	return new BasicStatusViewClass(boardElement, viewModel);
+    	}
+    	
+    	var boardContainer = $(boardElement);
+    	boardContainer.append('<span data-bind="text: currentPlayer().charAt(0).toUpperCase() + currentPlayer().slice(1)"></span> to play.');
+    	
+    	ko.applyBindings(viewModel, boardContainer.node);
+    }
+    
+    window.BGo.prototype.BasicStatusView = function(boardElement) {
+    	this.basicStatusView = new BasicStatusViewClass(boardElement, this.viewModel);
+    	return this;
+    }
+})();
+
+(function() {
+	
+    function BasicScoreViewClass(boardElement, viewModel) {
+    	if (false === (this instanceof BasicScoreViewClass)) {
+        	return new BasicScoreViewClass(boardElement, viewModel);
+    	}
+    	
+    	var boardContainer = $(boardElement);
+    	
+    	boardContainer.append('Black Captures: <span data-bind="text: blackCaptures"></span>');
+    	boardContainer.append('</br>');
+    	boardContainer.append('White Captures: <span data-bind="text: whiteCaptures"></span>');
+    	
+    	ko.applyBindings(viewModel, boardContainer.node); 
+    }
+    
+    window.BGo.prototype.BasicScoreView = function(boardElement) {
+    	this.basicScoreView = new BasicScoreViewClass(boardElement, this.viewModel);
+    	return this;
+    }
+})();
+
+(function() {
+	
+    function BasicControlPanelClass(boardElement, viewModel) {
+    	if (false === (this instanceof BasicControlPanelClass)) {
+        	return new BasicControlPanelClass(boardElement, viewModel);
+    	}
+    	
+    	var boardContainer = $(boardElement);
+    	
+    	boardContainer.append('Black Captures: <span data-bind="text: blackCaptures"></span>');
+    	boardContainer.append('</br>');
+    	boardContainer.append('White Captures: <span data-bind="text: whiteCaptures"></span>');
+    	
+    	ko.applyBindings(viewModel, boardContainer.node); 
+    }
+    
+    window.BGo.prototype.BasicControlPanel = function(boardElement) {
+    	this.basicControlPanel = new BasicControlPanelClass(boardElement, this.viewModel);
     	return this;
     }
 })();

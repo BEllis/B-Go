@@ -20,8 +20,6 @@
 		var self = this;
 		self.previousState = BGoStoneState.empty;
 		self.state = BGoStoneState.empty;
-		self.hasBeenPlayedByBlack = false;
-		self.hasBeenPlayedByWhite = false;
 		self.suicideForBlack = false;
 		self.suicideForWhite = false;
 		self.moveNumber = 0;
@@ -68,35 +66,6 @@
 				return stoneStrings;
 			})();
 		}; 
-		
-		var captureStoneString = function(capturedStoneString) {
-			
-			(function() {
-			
-				// Mark stones as captured.
-				for (var i = 0; i < capturedStoneString.stones.length; i++)
-				{
-					var stone = capturedStoneString.stones[i];
-					stone.capture();
-				}
-				
-				for (var i = 0; i < capturedStoneString.stones.length; i++)
-				{
-					var stone = capturedStoneString.stones[i];
-					var neighbourStoneStrings = stone.getNeighbourStoneStrings();
-					for (var j = 0; j < neighbourStoneStrings.length; j++)
-					{
-						neighbourStoneStrings[j].addLiberty(stone.x,stone.y);
-					}
-					
-					stone.checkForSuicide();
-				}
-				
-				capturedStoneString.stones = null;
-				capturedStoneString.liberties = null;
-				
-			})();
-		};
 		
 		self.getNeighbourStones = function() {
 			return(function () {
@@ -216,27 +185,8 @@
 		
 		self.playMove = function(color, moveNumber) {
 			
-			if (color == BGoStoneState.black)
-			{
-				var needToAddHash = self.hasBeenPlayedByBlack;
-			}
-			else
-			{
-				var needToAddHash = self.hasBeenPlayedByWhite;
-			}
-			
-			if (!needToAddHash)
-			{
-				viewModel.hashes = new Array();
-				if (color == BGoStoneState.black)
-				{
-					self.hasBeenPlayedByBlack = true;
-				}
-				else
-				{
-					self.hasBeenPlayedByWhite = true;
-				}
-			}
+			var needToAddHash = true; // TODO: Identify under which scenario's we need a hash.
+			// TODO: Trim viewmodel hashes if the board situation can never be repeated.
 			
 			self.state = color;
 			self.moveNumber = moveNumber;
@@ -259,7 +209,7 @@
 				if (touchingStoneString.owner != viewModel.currentPlayer() && touchingStoneString.liberties.length == 0)
 				{
 					// Capture them
-					captureStoneString(touchingStoneString);
+					touchingStoneString.captureStoneString();
 				}
 			}
 			
@@ -297,6 +247,44 @@
 	    		self.stones.push(other.stones[i]);
 	    	}
 	    };
+	    
+		self.captureStoneString = function() {
+			
+			(function() {
+			
+				// Mark stones as captured.
+				for (var i = 0; i < self.stones.length; i++)
+				{
+					var stone = self.stones[i];
+					stone.capture();
+				}
+				
+				for (var i = 0; i < self.stones.length; i++)
+				{
+					var stone = self.stones[i];
+					var neighbourStoneStrings = stone.getNeighbourStoneStrings();
+					for (var j = 0; j < neighbourStoneStrings.length; j++)
+					{
+						neighbourStoneStrings[j].addLiberty(stone.x,stone.y);
+					}
+					
+					stone.checkForSuicide();
+				}
+				
+				if (self.owner == BGoStoneState.black)
+				{
+					viewModel.whiteCaptures(viewModel.whiteCaptures() + self.stones.length);
+				}
+				else
+				{
+					viewModel.blackCaptures(viewModel.blackCaptures() + self.stones.length);
+				}
+				
+				self.stones = null;
+				self.liberties = null;
+				
+			})();
+		};
 	    
 	    self.addLiberty = function(x,y) {
 	    	(function() {
@@ -386,17 +374,35 @@
 			}
 		}
 		
+		self.clone = function() {
+			// TODO: Return a clone of this view model.
+		} 
+		
+		
 		self.getBoardState = function(x,y) { return self.boardState[(x - 1 + ((y - 1) * self.boardSize))](); };
+		
+		self.wouldRepeatBoardState = function(x, y, color) {
+			 // TODO: clone the board, play the move and get a hash?
+			 if (self.canPlay(x,y)) {
+			 	var clone = self.clone();
+			 	clone.getBoardState(x,y).playMove(clone.currentPlayer(), clone.moveNumber++);
+			 	var hash = clone.hashes[clone.hashes.length - 1];
+			 	if ($.inArray(hash, self.hashes) != -1) {
+			 		return true;
+			 	}
+			 }
+			 
+			 return false;
+		}
 		
 		self.generateHash = function()
 		{
+			// TODO: Use a more efficient hashing algorithm.
 			var hash = '';
 			for (var i = 0; i < self.boardState.length; i++)
 			{
 				hash += self.boardState[i]().state.charAt(0);
 			}
-			
-			alert(hash);
 			
 			return hash;
 		}

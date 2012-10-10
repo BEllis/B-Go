@@ -12,8 +12,15 @@
 
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
+    	<style>
+      	body {
+        	padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      	}
+    	</style>
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
         <script src="js/vendor/modernizr-2.6.2.min.js"></script>
         <script src="js/plugins.js"></script>
     </head>
@@ -22,10 +29,142 @@
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
 
-        <div id="gamelist"><div id="loading">Loading...</div></div>
+ <!--        <div id="gamelist"><div id="loading">Loading...</div></div> -->
+ 
+     <div id="navbar" class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">The B-Go Experiment</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#newGame">Start new game</a></li>
+              <li><a href="#loadGame">Load a game</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+          <form class="navbar-form pull-right">
+            <input class="span2" type="text" placeholder="Email">
+            <input class="span2" type="password" placeholder="Password">
+            <button type="submit" class="btn">Sign in</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+
+		<div class="row-fluid">
+			<h1 id='top5title'>Top 5 - Most Watchers</h1>
+	  		<div class="row-fluid">
+	    		<div id="boardtop1" class="span12">
+	    			<div class="row-fluid">
+	    				<div id="boardtop1board" class="span1" width="100px" style="vertical-align:middle;">
+	    				</div>
+	    				<div id="boardtop1Status" class="span2" style="vertical-align:middle;">
+	    					Jane Doe (B) vs John Smith (W)
+	    				</div>
+						<div id="boardtop1Status" class="span9" style="vertical-align:middle;">
+	    					A brief description of the game content.
+	    				</div>
+	    			</div>
+	    		</div>
+	    		<div id="boardtop2" class="span12">
+	    			<div class="row-fluid">
+	    				<div id="boardtop2board" class="span1" width="100px" style="vertical-align:middle;">
+	    				</div>
+	    				<div id="boardtop2Status" class="span2" style="vertical-align:middle;">
+	    					Jane Doe (B) vs John Smith (W)
+	    				</div>
+						<div id="boardtop2Status" class="span9" style="vertical-align:middle;">
+	    					A brief description of the game content.
+	    				</div>
+	    			</div>
+				</div>
+	    		<div id="boardtop3" class="span12">
+	    			<div class="row-fluid">
+	    				<div id="boardtop3board" class="span1" width="100px" style="vertical-align:middle;">
+	    				</div>
+	    				<div id="boardtop3Status" class="span2" style="vertical-align:middle;">
+	    					Jane Doe (B) vs John Smith (W)
+	    				</div>
+						<div id="boardtop3Status" class="span9" style="vertical-align:middle;">
+	    					A brief description of the game content.
+	    				</div>
+	    			</div>
+	    		</div>
+	    		<div id="boardtop4" class="span12">
+	    			<div class="row-fluid">
+	    				<div id="boardtop4board" class="span1" width="100px" style="vertical-align:middle;">
+	    				</div>
+	    				<div id="boardtop4Status" class="span2" style="vertical-align:middle;">
+	    					Jane Doe (B) vs John Smith (W)
+	    				</div>
+						<div id="boardtop4Status" class="span9" style="vertical-align:middle;">
+	    					A brief description of the game content.
+	    				</div>
+	    			</div>
+	    		</div>
+	    		<div id="boardtop5" class="span12">
+	    			<div class="row-fluid">
+	    				<div id="boardtop5board" class="span1" width="100px" style="vertical-align:middle;">
+	    				</div>
+	    				<div id="boardtop5Status" class="span2" style="vertical-align:middle;">
+	    					Jane Doe (B) vs John Smith (W)
+	    				</div>
+						<div id="boardtop5Status" class="span9" style="vertical-align:middle;">
+	    					A brief description of the game content.
+	    				</div>
+	    			</div>
+	    		</div>
+	  		</div>
+	  	</div>
+
+		<div class="row-fluid">
+			<h1 id='game1title'>Game #1</h1>
+	  		<div class="row-fluid">
+	    		<div class="span2">
+					<button class="btn btn-primary">Undo</button>
+	      			<button class="btn btn-primary">Pass</button>
+	      			<button class="btn btn-primary">Resign</button>
+	    		</div>
+	    		<div id="board1" class="span10">
+	      			
+	    		</div>
+	  		</div>
+	  	</div>
+
+<!--
+      <div class="hero-unit">
+        <h1>Welcome to B-Go.Net!</h1>
+        <p>This is a site for an experimental go client built entirely with javascript that will run without the need to be connected to the internet.</p>
+        <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+      </div>
+
+      <h1>Technology Stack</h1>
+      <p>The site makes use of the following javascript libraries,<br>
+      	<ul>
+      		<li>jQuery.js</li>
+      		<li>jQuery.UI.js</li>
+      		<li>Raphael.js</li>
+      		<li>Knockout.js</li>
+      		<li>bootstrap.js</li>
+      		<li>cukon.js</li>
+      		<li>modernizr</li>
+      	</ul>
+      </p>
+
+-->
+
+    </div> <!-- /container -->
        
 <!--        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script> -->
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.8.2.min.js"><\/script>')</script>
+        <script>document.write('<script src="js/vendor/bootstrap.min.js"><\/script>')</script>
 		<script>window.Cufon || document.write('<script src="js/vendor/cufon.js"><\/script>')</script>
         <script>window.Raphael || document.write('<script src="js/vendor/raphael-min.js"><\/script>')</script>
         <script>window.ko || document.write('<script src="js/vendor/knockout-2.1.0.js"><\/script>')</script>
@@ -38,21 +177,54 @@
 
         $(document).ready(function() {
         	
+        	var g1 = BGo(19);
+        	BGo(19).BasicBoardView($('#boardtop1board'));
+        	BGo(19).BasicBoardView($('#boardtop2board'));
+        	BGo(19).BasicBoardView($('#boardtop3board'));
+        	BGo(19).BasicBoardView($('#boardtop4board'));
+        	BGo(19).BasicBoardView($('#boardtop5board'));
+        	
+        	
+        	var resize = function() {
+        		var board = $("#board1");
+        		ko.cleanNode(board);
+        		board.empty();
+        		board.width(Math.min(($(window).height() - board.offset().top) * 0.9, ($(window).width() - board.offset().left) * 0.9));
+//  				board.width(($(window).height() - board.offset().top) * 0.1);
+  				g1.BasicBoardView(board);
+//  				$('#board1\.').node.paper.setViewBox(0,0,boardSizeInPixels,boardSizeInPixels);
+        	}
+        	
+        	var id;
+        	$(window).resize(function() {
+        		// Work around for chrome running resize before elements have actually been resized.
+				clearTimeout(id);
+    			id = setTimeout(resize, 500);
+			});
+			
+			resize();
+			
 			/*
         	var boardSizeInPixels = 300;
         	$('#gamelist').append('<div id="test" style="left:25px;top:' + (25 + (0 * (boardSizeInPixels + 25))) + 'px;width:' + boardSizeInPixels + 'px;height:' + boardSizeInPixels + 'px;position:absolute;"></div>');
         	BGo(3).BasicBoardView($('#test')); 
 			*/
         	
+        	/*
         	var boardSizeInPixels = 600;
         	for (var i = 0; i < 5; i++)
         	{
         		// Create a div to contain the board.
-        		$('#gamelist').append('<div id="board' + i + '" style="left:25px;top:' + (25 + (i * (boardSizeInPixels + 25))) + 'px;width:' + boardSizeInPixels + 'px;height:' + boardSizeInPixels + 'px;position:absolute;"></div>');
+        		$('#gamelist').append('<div id="game' + i + '" class="bgogame" style="left:25px;top:' + (25 + (i * (boardSizeInPixels + 75))) + 'px;width:' + (boardSizeInPixels + 25 + 150) + 'px;height:' + boardSizeInPixels + 'px;position:absolute;"></div>');
+        		$('#game' + i).append('<div id="board' + i + '" class="bgoboard" style="left:25px;top:50px;width:' + boardSizeInPixels + 'px;height:' + boardSizeInPixels + 'px;position:absolute;"></div>')
+        		$('#game' + i).append('<div id="status' + i + '" class="bgostatus" style="left:25px;top:25px;width:' + boardSizeInPixels + 'px;height:50px;text-align:center;font-weight:bold;position:absolute;"></div>')
+        		$('#game' + i).append('<div id="controlPanel' + i + '" class="bgocontrolpanel" style="left:25px;top:25px;width:' + boardSizeInPixels + 'px;height:50px;text-align:center;font-weight:bold;position:absolute;"></div>')
+        		$('#game' + i).append('<div id="score' + i + '" class="bgoscore" style="left:' + (boardSizeInPixels + 25) + 'px;top:25px;width:150px;height:100px;text-align:center;font-weight:bold;position:absolute;"></div>')
         		
-        		// Create a new game and attach the basic board view to the new div.
-        		BGo(9 + ((i % 2) * 10)).BasicBoardView($('#board' + i));
-        	}
+        		
+        		// Create a new game and attach the correct views to the divs.
+        		BGo(9 + ((i % 2) * 10)).BasicBoardView($('#board' + i)).BasicStatusView('#status' + i).BasicScoreView('#score' + i).BasicControlPanelClass('#controlpanel' + i);
+        	} */
        });
 	   
     </script>
