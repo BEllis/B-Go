@@ -118,14 +118,10 @@
 				{
 					var increment = ((i + 1) * stoneSize * 2);
 					var textAdjustment = -15;
-					var text = paper.print(0, 0, String.fromCharCode(65 + i), coordinateFont, 12, 'middle', 0).attr({fill:'black'});
-					centerPrint(text, increment, (stoneSize / 2));
-					text = paper.print(0, 0, String.fromCharCode(65 + i), coordinateFont, 12, 'middle', 0).attr({fill:'black'});
-					centerPrint(text, increment, boardSizeInPixels - (stoneSize / 2));
-					text = paper.print(0, 0, i + 1, coordinateFont, 12, 'middle', 0).attr({fill:'black'});
-					centerPrint(text, (stoneSize / 2), increment);
-					text = paper.print(0, 0, i + 1, coordinateFont, 12, 'middle', 0).attr({fill:'black'});
-					centerPrint(text, boardSizeInPixels - (stoneSize / 2), increment);
+					centerPrint(paper.print(0, 0, String.fromCharCode(65 + i), coordinateFont, 12, 'middle', 0).attr({fill:'black'}), increment, (stoneSize / 2));
+					centerPrint(paper.print(0, 0, String.fromCharCode(65 + i), coordinateFont, 12, 'middle', 0).attr({fill:'black'}), increment, boardSizeInPixels - (stoneSize / 2));
+					centerPrint(paper.print(0, 0, i + 1, coordinateFont, 12, 'middle', 0).attr({fill:'black'}), (stoneSize / 2), increment);
+					centerPrint(paper.print(0, 0, i + 1, coordinateFont, 12, 'middle', 0).attr({fill:'black'}), boardSizeInPixels - (stoneSize / 2), increment);
 				}
 			})();
 	        
