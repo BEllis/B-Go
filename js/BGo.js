@@ -22,6 +22,7 @@
 		self.state = BGoStoneState.empty;
 		self.suicideForBlack = false;
 		self.suicideForWhite = false;
+		self.isKo = false;
 		self.moveNumber = 0;
 		self.markUp = '';
 		self.stoneString = null;
@@ -108,11 +109,11 @@
 				
 				if (color == BGoStoneState.black)
 				{
-					return !self.suicideForBlack;
+					return !self.suicideForBlack && !self.isKo;
 				}
 				else
 				{
-					return !self.suicideForWhite;
+					return !self.suicideForWhite && !self.isKo;
 				}
 			})();
 		}  
@@ -130,7 +131,7 @@
 					}
 				}
 				
-				var neighbourStoneStrings = self.getNeighbourStoneStrings(self.x, self.y);
+				var neighbourStoneStrings = self.getNeighbourStoneStrings();
 				var blackWouldBeCapturedByBlack = false;
 				var whiteWouldBeCapturedByBlack = false;
 				var blackWouldBeCapturedByWhite = false;
@@ -210,6 +211,9 @@
 				{
 					// Capture them
 					touchingStoneString.captureStoneString();
+					
+					// Check for super ko.
+					viewModel.checkForKoAndSuperKo(); 
 				}
 			}
 			
@@ -246,6 +250,8 @@
 	    		other.stones[i].stoneString = self;
 	    		self.stones.push(other.stones[i]);
 	    	}
+	    	
+	    	viewModel.stoneStrings.splice($.inArray(other, viewModel.stoneStrings), 1);
 	    };
 	    
 		self.captureStoneString = function() {
@@ -280,8 +286,7 @@
 					viewModel.blackCaptures(viewModel.blackCaptures() + self.stones.length);
 				}
 				
-				self.stones = null;
-				self.liberties = null;
+				viewModel.stoneStrings.splice($.inArray(self, viewModel.stoneStrings), 1);
 				
 			})();
 		};
@@ -342,6 +347,7 @@
     	
     	self.stones.push(viewModel.getBoardState(x,y)); 
     	viewModel.getBoardState(x,y).stoneString = self;
+    	viewModel.stoneStrings.push(self);
 		return self;
 	}  
 
@@ -357,12 +363,14 @@
 		self.bgoMasterVM = BGoMasterVM;
 		self.boardSize = boardSize;
 		self.komi = komi;
-		self.handicap = handicap; 
+		self.handicap = handicap;
 
 		// Dynamic Data
 		self.moveNumber = ko.observable(1);
 		self.hashes = new Array(); // needed for super-ko detection.
 		self.currentPlayer = ko.observable(BGoStoneState.black);
+		self.stoneStrings = new Array();
+		self.kos = new Array();
 		self.blackCaptures = ko.observable(0);
 		self.whiteCaptures = ko.observable(0);
 		self.boardState = new Array();
@@ -374,26 +382,8 @@
 			}
 		}
 		
-		self.clone = function() {
-			// TODO: Return a clone of this view model.
-		} 
-		
 		
 		self.getBoardState = function(x,y) { return self.boardState[(x - 1 + ((y - 1) * self.boardSize))](); };
-		
-		self.wouldRepeatBoardState = function(x, y, color) {
-			 // TODO: clone the board, play the move and get a hash?
-			 if (self.canPlay(x,y)) {
-			 	var clone = self.clone();
-			 	clone.getBoardState(x,y).playMove(clone.currentPlayer(), clone.moveNumber++);
-			 	var hash = clone.hashes[clone.hashes.length - 1];
-			 	if ($.inArray(hash, self.hashes) != -1) {
-			 		return true;
-			 	}
-			 }
-			 
-			 return false;
-		}
 		
 		self.generateHash = function()
 		{
@@ -407,6 +397,55 @@
 			return hash;
 		}
 		
+		self.checkForKoAndSuperKo = function()
+		{
+			(function() {
+				// TODO: Note: Check for super ko after a pass as well as after a capture.
+					
+				var currentHash = self.generateHash();
+				
+				// For each group with one liberty remaining,
+				for (var j = 0; j < self.stoneStrings.length; j++)
+				{
+					var currentStoneString = self.stoneStrings[j];
+					if (currentStoneString.owner == self.currentPlayer() && currentStoneString.liberties.length == 1)
+					{
+						var potentialKoMove = currentStoneString.liberties[0];
+						var workingHash = currentHash;					
+
+						var opponent = BGoStoneState.black;
+						if (currentStoneString.owner == BGoStoneState.black)
+						{
+							opponent == BGoStoneState.whitek;
+						}
+								
+						// Calculate the board position if the last liberties was taken,
+						workingHash[(potentialKoMove.x - 1 + ((potentialKoMove.y - 1) * self.boardSize))] = opponent.charAt(0);
+						var neighbourStoneStrings = potentialKoMove.getNeighbourStoneStrings();
+						var wouldBeCaptured = false;
+						
+						for (var k = 0; k < neighbourStoneStrings.length; k++)
+						{
+							// Check to see if playing here would capture any oppontent groups.
+							var stoneString = neighbourStoneStrings[k];
+							if (stoneString.owner != opponent && stoneString.isCapturedByPlayingHere(potentialKoMove, opponent)) {
+								for (var l = 0; l < stoneString.stones.length; l++)
+								{
+									workingHash[(stoneString.stones[l].x - 1 + ((stoneString.stones[l].y - 1) * self.boardSize))] = 'E';
+								}
+							}
+						}
+						
+						if (workingHash == currentHash || $.inArray(workingHash, self.hashes) != -1)
+						{
+							potentialKoMove.isKo = true;
+							self.kos.push(potentialKoMove);
+						}
+					}
+				}
+			})();
+		}
+		
 		// Behaviour
 		self.togglePlayer = function() { self.currentPlayer((self.currentPlayer() == BGoStoneState.black ? BGoStoneState.white : BGoStoneState.black)); };
 		self.canPlay = function(x,y) {
@@ -415,14 +454,25 @@
 		
 		self.userClick = function(x,y) {
 
+			// Check the move is legal.
 			if (!self.canPlay(x,y))
 			{
 				return;
 			}
 			
+			// Clear moves marked as illegal due to KO / Super KO.
+			for (var i = 0; i < self.kos.length; i++)
+			{
+				self.kos[i].isKo = false;	
+			}
+			
+			self.kos.length = 0;
+			
+			// Play the move.
 			self.getBoardState(x,y).playMove(self.currentPlayer(), self.moveNumber++);
-			self.togglePlayer(); // Change turn
-
+			
+			// Change turn
+			self.togglePlayer(); 
 		} 
 		
 		return self;
