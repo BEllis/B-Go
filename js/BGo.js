@@ -438,6 +438,8 @@
 						
 						if (workingHash == currentHash || $.inArray(workingHash, self.hashes) != -1)
 						{
+							console.info('workingHash: ' + workingHash);
+							console.info('currentHash: ' + currentHash);
 							potentialKoMove.isKo = true;
 							self.kos.push(potentialKoMove);
 						}
@@ -457,7 +459,7 @@
 			// Check the move is legal.
 			if (!self.canPlay(x,y))
 			{
-				return;
+				throw 'Invalid move at ' + x + ', ' + y;
 			}
 			
 			// Clear moves marked as illegal due to KO / Super KO.
