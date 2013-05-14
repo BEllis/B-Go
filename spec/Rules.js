@@ -1,46 +1,46 @@
-var helloWorld = function() { return 'Hello world!'; }
+var g1 = {};
+var playMove = function(x,y) { g1.viewModel.userClick(x,y); }
 
 describe('SuperKo', function() {
         it('Detect Positional Superko', function() {
 
-		var g1 = BGo(9);
+		g1 = BGo(9);
 
                 // black to capture
-		g1.viewModel.userClick(3,1); // B
-		g1.viewModel.userClick(1,2); // W
-		g1.viewModel.userClick(2,2); // B
-		g1.viewModel.userClick(2,1); // W
+		playMove(3,1); // B
+		playMove(1,2); // W
+		playMove(2,2); // B
+		playMove(2,1); // W
 
                 // black to capture
-		g1.viewModel.userClick(7,9); // B
-		g1.viewModel.userClick(9,8); // W
-		g1.viewModel.userClick(8,8); // B
-		g1.viewModel.userClick(8,9); // W
+		playMove(7,9); // B
+		playMove(9,8); // W
+		playMove(8,8); // B
+		playMove(8,9); // W
 
                 // white to capture
-		g1.viewModel.userClick(1,8); // B
-		g1.viewModel.userClick(3,9); // W
-		g1.viewModel.userClick(2,9); // B
-		g1.viewModel.userClick(2,8); // W
+		playMove(1,8); // B
+		playMove(3,9); // W
+		playMove(2,9); // B
+		playMove(2,8); // W
 
                 // white to capture
-		g1.viewModel.userClick(9,2); // B
-		g1.viewModel.userClick(7,1); // W
-		g1.viewModel.userClick(8,1); // B
-		g1.viewModel.userClick(8,2); // W
-
+		playMove(9,2); // B
+		playMove(7,1); // W
+		playMove(8,1); // B
+		playMove(8,2); // W
 
 		// Black captures first
-		g1.viewModel.userClick(1,1); // B
+		playMove(1,1); // B
 /*
 		// Then White
-		g1.viewModel.userClick(9,1); // W
+		playMove(9,1); // W
 
 		// Then Black
-		g1.viewModel.userClick(9,9); // B
+		playMove(9,9); // B
 
 		// Now white
-		g1.viewModel.userClick(1,9); // W */
+		playMove(1,9); // W */
 
 /*
 		expect(g1.viewModel.getBoardState(3,1).state).toEqual('black');
