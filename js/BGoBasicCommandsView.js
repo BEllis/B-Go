@@ -4,7 +4,7 @@
 (function (global, document) {
     "use strict";
 
-    global.BGoSgfCommandsView = function (domContainer, viewModel, languagePack) {
+    global.BGoBasicCommandsView = function (domContainer, viewModel) {
 
         var me = this;
 
@@ -20,13 +20,13 @@
         me.passButton = domContainer.ownerDocument.createElement('button');
         me.resignButton = domContainer.ownerDocument.createElement('button');
 
-        me.undoButton.className = 'bgo-sgf-undo-button';
-        me.passButton.className = 'bgo-sgf-pass-button';
-        me.resignButton.className = 'bgo-sgf-resign-button';
+        me.undoButton.className = 'bgo-basic-undo-button';
+        me.passButton.className = 'bgo-basic-pass-button';
+        me.resignButton.className = 'bgo-basic-resign-button';
 
-        me.undoButton.innerText = languagePack.CommandButtonUndo;
-        me.passButton.innerText = languagePack.CommandButtonPass;
-        me.resignButton.innerText = languagePack.CommandButtonResign;
+        me.undoButton.innerText = viewModel.languagePack.CommandButtonUndo;
+        me.passButton.innerText = viewModel.languagePack.CommandButtonPass;
+        me.resignButton.innerText = viewModel.languagePack.CommandButtonResign;
 
         me.undoButton.onclick = function () { viewModel.undo(); };
         me.passButton.onclick = function () { viewModel.pass(); };

@@ -1,5 +1,5 @@
 /*jslint browser: true*/
-/*global BGo:false, BGoViewModel:false, BGoSgfBoardView:false, BGoSgfCapturesView:false, BGoSgfCommandsView:false, describe, it */
+/*global BGo:false, BGoViewModel:false, BGoSvgBoardView:false, BGoBasicCapturesView:false, BGoBasicCommandsView:false, describe, it, expect, spyOn */
 
 var g1 = null;
 var vm1 = null;
@@ -9,192 +9,442 @@ var v3 = null;
 var commandsView = null;
 var playMove = function (x, y) { "use strict"; g1.viewModel.userClick(x, y); };
 
-describe('Setup Basic Commands View', function () {
+describe('Basic Commands View', function () {
     "use strict";
 
-    function BGoViewModel() {
-        return this;
-    }
+    var bgoGame = { numberOfPoints: 9 * 9 };
 
-    var MockBGoViewModel = BGoViewModel,
-        mockLanguagePack =
-            {
-                CommandButtonUndo: 'Undo',
-                CommandButtonPass: 'Pass',
-                CommandButtonResign: 'Resign'
-            };
+    describe('Constructor Validation', function () {
 
-    it('domContainer is not a DOM element', function () {
-        var domContainer = {},
-            viewModel = new MockBGoViewModel();
-        try {
-            commandsView = new BGoSgfCommandsView(domContainer, viewModel, mockLanguagePack);
-            throw 'Failed to throw exception';
-        } catch (ex) {
-            if (ex !== 'domContainer must be a DOM element.') {
-                throw "Failed to throw 'domContainer must be a DOM element' exception, instead '" + ex + "' was thrown.";
+        it('domContainer is not a DOM element', function () {
+            var domContainer = {},
+                viewModel = new BGoViewModel(bgoGame);
+            try {
+                commandsView = new BGoBasicCommandsView(domContainer, viewModel);
+                throw 'Failed to throw exception';
+            } catch (ex) {
+                if (ex !== 'domContainer must be a DOM element.') {
+                    throw "Failed to throw 'domContainer must be a DOM element' exception, instead '" + ex + "' was thrown.";
+                }
             }
-        }
-    });
+        });
 
-    it('viewModel is not a ViewModel', function () {
-        var domContainer = document.createElement('div'),
-            viewModel = {};
-        try {
-            commandsView = new BGoSgfCommandsView(domContainer, viewModel, mockLanguagePack);
-            throw 'Failed to throw exception';
-        } catch (ex) {
-            if (ex !== 'viewModel must be of type BGoViewModel') {
-                throw "Failed to throw 'viewModel must be of type BGoViewModel' exception, instead '" + ex + "' was thrown.";
+        it('viewModel is not a ViewModel', function () {
+            var domContainer = document.createElement('div'),
+                viewModel = {};
+            try {
+                commandsView = new BGoBasicCommandsView(domContainer, viewModel);
+                throw 'Failed to throw exception';
+            } catch (ex) {
+                if (ex !== 'viewModel must be of type BGoViewModel') {
+                    throw "Failed to throw 'viewModel must be of type BGoViewModel' exception, instead '" + ex + "' was thrown.";
+                }
             }
-        }
+        });
     });
 
-    it('has a undo button', function () {
-        var domContainer = document.createElement('div'),
-            viewModel = new MockBGoViewModel(),
-            commandsView = new BGoSgfCommandsView(domContainer, viewModel, mockLanguagePack),
-            i,
-            nodes,
-            pass = false;
+    describe('Buttons are shown', function () {
 
-        nodes = domContainer.childNodes;
-        for (i = 0; i < nodes.length; i += 1) {
-            if (nodes[i].tagName === 'BUTTON' && nodes[i].className === 'bgo-sgf-undo-button') {
-                pass = true;
+        it('has a undo button', function () {
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                commandsView = new BGoBasicCommandsView(domContainer, viewModel),
+                i,
+                nodes,
+                pass = false;
+
+            nodes = domContainer.childNodes;
+            for (i = 0; i < nodes.length; i += 1) {
+                if (nodes[i].tagName === 'BUTTON' && nodes[i].className === 'bgo-basic-undo-button') {
+                    pass = true;
+                }
             }
-        }
 
-        if (!pass) {
-            throw 'No button element with className "bgo-sgf-undo-button" found.';
-        }
-
-        if (!commandsView.undoButton) {
-            throw 'undoButton not set';
-        }
-    });
-
-    it('has a pass button', function () {
-        var domContainer = document.createElement('div'),
-            viewModel = new MockBGoViewModel(),
-            commandsView = new BGoSgfCommandsView(domContainer, viewModel, mockLanguagePack),
-            i,
-            nodes,
-            pass = false;
-
-        nodes = domContainer.childNodes;
-        for (i = 0; i < nodes.length; i += 1) {
-            if (nodes[i].tagName === 'BUTTON' && nodes[i].className === 'bgo-sgf-pass-button') {
-                pass = true;
+            if (!pass) {
+                throw 'No button element with className "bgo-basic-undo-button" found.';
             }
-        }
 
-        if (!pass) {
-            throw 'No button element with className "bgo-sgf-pass-button" found.';
-        }
-
-        if (!commandsView.passButton) {
-            throw 'passButton not set';
-        }
-    });
-
-    it('has a resign button', function () {
-        var domContainer = document.createElement('div'),
-            viewModel = new MockBGoViewModel(),
-            commandsView = new BGoSgfCommandsView(domContainer, viewModel, mockLanguagePack),
-            i,
-            nodes,
-            pass = false;
-
-        nodes = domContainer.childNodes;
-        for (i = 0; i < nodes.length; i += 1) {
-            if (nodes[i].tagName === 'BUTTON' && nodes[i].className === 'bgo-sgf-resign-button') {
-                pass = true;
+            if (!commandsView.undoButton) {
+                throw 'undoButton not set';
             }
-        }
+        });
 
-        if (!pass) {
-            throw 'No button element with className "bgo-sgf-resign-button" found.';
-        }
+        it('has a pass button', function () {
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                commandsView = new BGoBasicCommandsView(domContainer, viewModel),
+                i,
+                nodes,
+                pass = false;
 
-        if (!commandsView.resignButton) {
-            throw 'resignButton not set';
-        }
+            nodes = domContainer.childNodes;
+            for (i = 0; i < nodes.length; i += 1) {
+                if (nodes[i].tagName === 'BUTTON' && nodes[i].className === 'bgo-basic-pass-button') {
+                    pass = true;
+                }
+            }
+
+            if (!pass) {
+                throw 'No button element with className "bgo-basic-pass-button" found.';
+            }
+
+            if (!commandsView.passButton) {
+                throw 'passButton not set';
+            }
+        });
+
+        it('has a resign button', function () {
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                commandsView = new BGoBasicCommandsView(domContainer, viewModel),
+                i,
+                nodes,
+                pass = false;
+
+            nodes = domContainer.childNodes;
+            for (i = 0; i < nodes.length; i += 1) {
+                if (nodes[i].tagName === 'BUTTON' && nodes[i].className === 'bgo-basic-resign-button') {
+                    pass = true;
+                }
+            }
+
+            if (!pass) {
+                throw 'No button element with className "bgo-basic-resign-button" found.';
+            }
+
+            if (!commandsView.resignButton) {
+                throw 'resignButton not set';
+            }
+        });
+
     });
 
-    it('calls ViewModel.undo if undo is clicked.', function () {
-        var domContainer = document.createElement('div'),
-            viewModel = new MockBGoViewModel(),
-            commandsView = new BGoSgfCommandsView(domContainer, viewModel, mockLanguagePack),
-            pass = false;
+    describe('Buttons are hooks into ViewModel', function () {
 
-        viewModel.undo = function () { pass = true; };
-        commandsView.undoButton.click();
-        if (!pass) {
-            throw 'Undo button did not call undo on the ViewModel.';
-        }
+        it('calls ViewModel.undo if undo is clicked.', function () {
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                commandsView = new BGoBasicCommandsView(domContainer, viewModel),
+                pass = false;
+
+            viewModel.undo = function () { pass = true; };
+            commandsView.undoButton.click();
+            if (!pass) {
+                throw 'Undo button did not call undo on the ViewModel.';
+            }
+        });
+
+        it('calls ViewModel.pass if pass is clicked.', function () {
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                commandsView = new BGoBasicCommandsView(domContainer, viewModel),
+                pass = false;
+
+            viewModel.pass = function () { pass = true; };
+            commandsView.passButton.click();
+            if (!pass) {
+                throw 'Pass button did not call pass on the ViewModel.';
+            }
+        });
+
+        it('calls ViewModel.resign if resign is clicked.', function () {
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                commandsView = new BGoBasicCommandsView(domContainer, viewModel),
+                pass = false;
+
+            viewModel.resign = function () { pass = true; };
+            commandsView.resignButton.click();
+            if (!pass) {
+                throw 'Resign button did not call resign on the ViewModel.';
+            }
+        });
     });
 
-    it('calls ViewModel.pass if pass is clicked.', function () {
-        var domContainer = document.createElement('div'),
-            viewModel = new MockBGoViewModel(),
-            commandsView = new BGoSgfCommandsView(domContainer, viewModel, mockLanguagePack),
-            pass = false;
+    describe('Button labels come from a language pack', function () {
 
-        viewModel.pass = function () { pass = true; };
-        commandsView.passButton.click();
-        if (!pass) {
-            throw 'Pass button did not call pass on the ViewModel.';
-        }
+        it('Undo button has text from language pack value CommandButtonUndo.', function () {
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                dummyLanguagePack = { CommandButtonUndo: 'random text1', CommandButtonPass: 'random text2', CommandButtonResign: 'random text3' },
+                commandsView,
+                pass = false;
+
+            viewModel.languagePack = dummyLanguagePack;
+            commandsView = new BGoBasicCommandsView(domContainer, viewModel, dummyLanguagePack);
+
+            if (commandsView.undoButton.innerText !== dummyLanguagePack.CommandButtonUndo) {
+                throw 'Undo button does not display text from the language pack.';
+            }
+        });
+
+        it('Pass button has text from language pack value CommandButtonPass.', function () {
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                dummyLanguagePack = { CommandButtonUndo: 'random text1', CommandButtonPass: 'random text2', CommandButtonResign: 'random text3' },
+                commandsView,
+                pass = false;
+
+            viewModel.languagePack = dummyLanguagePack;
+            commandsView = new BGoBasicCommandsView(domContainer, viewModel, dummyLanguagePack);
+
+            if (commandsView.passButton.innerText !== dummyLanguagePack.CommandButtonPass) {
+                throw 'Pass button does not display text from the language pack.';
+            }
+        });
+
+        it('Resign button has text from language pack value CommandButtonResign.', function () {
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                dummyLanguagePack = { CommandButtonUndo: 'random text1', CommandButtonPass: 'random text2', CommandButtonResign: 'random text3' },
+                commandsView,
+                pass = false;
+
+            viewModel.languagePack = dummyLanguagePack;
+            commandsView = new BGoBasicCommandsView(domContainer, viewModel, dummyLanguagePack);
+
+            if (commandsView.resignButton.innerText !== dummyLanguagePack.CommandButtonResign) {
+                throw 'Resign button does not display text from the language pack.';
+            }
+        });
+    });
+});
+
+describe('Basic Captures View', function () {
+    "use strict";
+
+    var bgoGame = { numberOfPoints: 9 * 9 };
+
+    describe('Constructor Validation', function () {
+
+        it('Throw an exception when invalid player color is used.', function () {
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame);
+
+            expect(function () { var capturesView = new BGoBasicCapturesView('blah', domContainer, viewModel); }).toThrow();
+        });
+
     });
 
-    it('calls ViewModel.resign if resign is clicked.', function () {
-        var domContainer = document.createElement('div'),
-            viewModel = new MockBGoViewModel(),
-            commandsView = new BGoSgfCommandsView(domContainer, viewModel, mockLanguagePack),
-            pass = false;
+    describe('Updates when the score is changed', function () {
+        it('Blacks captures view updates when blacks captures changes', function () {
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                capturesView = new BGoBasicCapturesView(BGo.Black, domContainer, viewModel);
 
-        viewModel.resign = function () { pass = true; };
-        commandsView.resignButton.click();
-        if (!pass) {
-            throw 'Resign button did not call resign on the ViewModel.';
-        }
+            expect(domContainer.textContent).toBe('0');
+            viewModel.blackCaptures(10);
+            expect(domContainer.textContent).toBe('10');
+
+        });
+
+        it('Whites captures view updates when whites captures changes', function () {
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                capturesView = new BGoBasicCapturesView(BGo.White, domContainer, viewModel);
+
+            expect(domContainer.textContent).toBe('0');
+            viewModel.whiteCaptures(10);
+            expect(domContainer.textContent).toBe('10');
+
+        });
+
+        it('Blacks captures view does not update when whites captures changes', function () {
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                capturesView = new BGoBasicCapturesView(BGo.Black, domContainer, viewModel);
+
+            expect(domContainer.textContent).toBe('0');
+            viewModel.whiteCaptures(10);
+            expect(domContainer.textContent).toBe('0');
+
+        });
+
+        it('Whites captures view does not updates when blacks captures changes', function () {
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                capturesView = new BGoBasicCapturesView(BGo.White, domContainer, viewModel);
+
+            expect(domContainer.textContent).toBe('0');
+            viewModel.blackCaptures(10);
+            expect(domContainer.textContent).toBe('0');
+
+        });
+    });
+});
+
+describe('SVG Board View', function () {
+    "use strict";
+
+    var bgoGame = { numberOfPoints: 9 * 9 };
+
+    describe('Sends commands to the viewModel', function () {
+
+        it('all points call ViewModel.playMove if clicked.', function () {
+
+            // Arrange
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                boardView = new BGoSvgBoardView(domContainer, viewModel),
+                i,
+                j;
+
+            spyOn(viewModel, 'playMove');
+
+            for (i = 0; i < bgoGame.numberOfPoints; i += 1) {
+
+                // Action
+                boardView.getPointElement(i).click();
+
+                // Assert
+                expect(viewModel.playMove).toHaveBeenCalledWith(i);
+            }
+        });
+
     });
 
-    it('Undo button has text from language pack value CommandButtonUndo.', function () {
-        var domContainer = document.createElement('div'),
-            viewModel = new MockBGoViewModel(),
-            dummyLanguagePack = { CommandButtonUndo: 'random text1', CommandButtonPass: 'random text2', CommandButtonResign: 'random text3' },
-            commandsView = new BGoSgfCommandsView(domContainer, viewModel, dummyLanguagePack),
-            pass = false;
+    describe('Updates when the view model changes', function () {
 
-        if (commandsView.undoButton.innerText !== dummyLanguagePack.CommandButtonUndo) {
-            throw 'Undo button does not display text from the language pack.';
-        }
+        it('all points update to black stone when the viewModel.boardState changes for that element', function () {
+
+            // Arrange
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                boardView = new BGoSvgBoardView(domContainer, viewModel),
+                i,
+                j;
+
+            for (i = 0; i < bgoGame.numberOfPoints; i += 1) {
+
+                // Action
+                viewModel.boardState[i].owner(BGo.Black);
+
+                // Assert
+                expect(boardView.getPointElement(i, j).textContent).toBe(BGo.Black);
+            }
+        });
+
+
+        it('all points update to white stone when the viewModel.boardState changes for that element', function () {
+
+            // Arrange
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                boardView = new BGoSvgBoardView(domContainer, viewModel),
+                i,
+                j;
+
+            for (i = 0; i < bgoGame.numberOfPoints; i += 1) {
+
+                // Action
+                viewModel.boardState[i].owner(BGo.White);
+
+                // Assert
+                expect(boardView.getPointElement(i, j).textContent).toBe(BGo.White);
+            }
+        });
+
+        it('all points update to empty when the viewModel.boardState changes for that element', function () {
+
+            // Arrange
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                boardView,
+                i,
+                j;
+
+            // Start all points in the illegal move state.
+            for (i = 0; i < bgoGame.numberOfPoints; i += 1) {
+                viewModel.boardState[i].owner(BGo.Black);
+            }
+
+            boardView = new BGoSvgBoardView(domContainer, viewModel);
+
+            for (i = 0; i < bgoGame.numberOfPoints; i += 1) {
+
+
+                // Action
+                viewModel.boardState[i].owner(BGo.Empty);
+
+                // Assert
+                expect(boardView.getPointElement(i, j).textContent).toBe(BGo.Empty);
+            }
+        });
+
+        it('all points update to non-ko when the viewModel.boardState changes for that element', function () {
+
+            // Arrange
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                boardView,
+                i,
+                j;
+
+            // Start all points in the illegal move state.
+            for (i = 0; i < bgoGame.numberOfPoints; i += 1) {
+                viewModel.boardState[i].ko(true);
+            }
+
+            boardView = new BGoSvgBoardView(domContainer, viewModel);
+
+            for (i = 0; i < bgoGame.numberOfPoints; i += 1) {
+
+                // Action
+                viewModel.boardState[i].ko(false);
+
+                // Assert
+                expect(boardView.getPointElement(i, j).getAttribute('class')).toBe('');
+            }
+        });
+
+        it('all Points update to ko move when the viewModel.boardState changes for that element', function () {
+
+            // Arrange
+            var domContainer = document.createElement('div'),
+                viewModel = new BGoViewModel(bgoGame),
+                boardView = new BGoSvgBoardView(domContainer, viewModel),
+                i,
+                j;
+
+            for (i = 0; i < viewModel.numberOfPoints; i += 1) {
+
+                // Action
+                viewModel.boardState[i].ko(true);
+
+                // Assert
+                expect(boardView.getPointElement(i, j).getAttribute('class')).toBe('bgo-illegal-ko-move');
+            }
+        });
+    });
+});
+
+describe('BGo View Model', function () {
+    "use strict";
+
+    var bgoGame = { numberOfPoints: 9 * 9, playMove: function (index) { throw 'Unexpected call to playMove'; }}
+
+    it('calls bgoGame.playMove when BGoViewModel.playMove is called.', function () {
+
+        var viewModel = new BGoViewModel(bgoGame);
+
+        spyOn(bgoGame, 'playMove');
+
+        viewModel.playMove(1);
+
+        expect(bgoGame.playMove).toHaveBeenCalledWith(1);
+
     });
 
-    it('Pass button has text from language pack value CommandButtonPass.', function () {
-        var domContainer = document.createElement('div'),
-            viewModel = new MockBGoViewModel(),
-            dummyLanguagePack = { CommandButtonUndo: 'random text1', CommandButtonPass: 'random text2', CommandButtonResign: 'random text3' },
-            commandsView = new BGoSgfCommandsView(domContainer, viewModel, dummyLanguagePack),
-            pass = false;
+    it('initializes to the same board size as bgoGame', function () {
 
-        if (commandsView.passButton.innerText !== dummyLanguagePack.CommandButtonPass) {
-            throw 'Pass button does not display text from the language pack.';
-        }
-    });
+        var viewModel = new BGoViewModel(bgoGame);
 
-    it('Resign button has text from language pack value CommandButtonResign.', function () {
-        var domContainer = document.createElement('div'),
-            viewModel = new MockBGoViewModel(),
-            dummyLanguagePack = { CommandButtonUndo: 'random text1', CommandButtonPass: 'random text2', CommandButtonResign: 'random text3' },
-            commandsView = new BGoSgfCommandsView(domContainer, viewModel, dummyLanguagePack),
-            pass = false;
+        spyOn(bgoGame, 'playMove');
 
-        if (commandsView.resignButton.innerText !== dummyLanguagePack.CommandButtonResign) {
-            throw 'Resign button does not display text from the language pack.';
-        }
+        viewModel.playMove(1);
+
+        expect(bgoGame.playMove).toHaveBeenCalledWith(1);
+
     });
 });
 
@@ -209,10 +459,10 @@ describe('Setup Basic Game', function () {
 
  g1 = new BGo(); // Logical Board (Model)
         vm1 = new BGoViewModel(g1); // View Model
-        v1 = new BGoSgfBoardView(boardContainer, vm1); // Board View
-        v2 = new BGoSgfCapturesView(blackCardContainer, vm1, 'white'); // Card View (Captured black stones)
-        v3 = new BGoSgfCapturesView(whiteCardContainer, vm1, 'black'); // Card View (Captured white stones)
-        commandsView = new BGoSgfCommandsView(commandsContainer, vm1); // Commands View (Undo, Pass, Resign)
+        v1 = new BGoSvgBoardView(boardContainer, vm1); // Board View
+        v2 = new BGoCapturesView(blackCardContainer, vm1, 'white'); // Card View (Captured black stones)
+        v3 = new BGoCapturesView(whiteCardContainer, vm1, 'black'); // Card View (Captured white stones)
+        commandsView = new BGoCommandsView(commandsContainer, vm1); // Commands View (Undo, Pass, Resign)
     });
 }); */
 

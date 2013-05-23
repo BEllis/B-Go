@@ -29,4 +29,34 @@
         return (results && results.length > 1) ? results[1] : "";
     };
 
+    global.BGo.Utils.createObservable = function (value) {
+
+        var subscriptions = [], retVal = function (newValue) {
+
+            if (newValue !== undefined) {
+                value = newValue;
+                subscriptions.map(function (subscribeAction) {
+                    subscribeAction(value);
+                });
+            }
+
+            return value;
+
+        };
+
+        retVal.subscribe = function (subscribeAction) {
+            subscriptions.push(subscribeAction);
+        };
+
+        return retVal;
+    };
+
+    global.BGo.Utils.getIndexOf = function (x, y, boardSize) {
+        return y + (x * boardSize);
+    };
+
+    global.BGo.Black = 'B';
+    global.BGo.White = 'W';
+    global.BGo.Empty = ' ';
+
 }(window));
