@@ -1,5 +1,5 @@
 /*jslint browser: true*/
-/*global BGo:false, BGoViewModel:false, BGoSvgBoardView:false, BGoBasicCapturesView:false, BGoBasicCommandsView:false, describe, it, expect, spyOn */
+/*global BGo:false, BGoGame: false, BGoViewModel:false, BGoSvgBoardView:false, BGoBasicCapturesView:false, BGoBasicCommandsView:false, describe, it, expect, spyOn */
 
 var g1 = null;
 var vm1 = null;
@@ -311,8 +311,7 @@ describe('SVG Board View', function () {
             var domContainer = document.createElement('div'),
                 viewModel = new BGoViewModel(bgoGame),
                 boardView = new BGoSvgBoardView(domContainer, viewModel),
-                i,
-                j;
+                i;
 
             for (i = 0; i < bgoGame.numberOfPoints; i += 1) {
 
@@ -320,7 +319,7 @@ describe('SVG Board View', function () {
                 viewModel.boardState[i].owner(BGo.Black);
 
                 // Assert
-                expect(boardView.getPointElement(i, j).textContent).toBe(BGo.Black);
+                expect(boardView.getPointElement(i).textContent).toBe(BGo.Black);
             }
         });
 
@@ -331,8 +330,7 @@ describe('SVG Board View', function () {
             var domContainer = document.createElement('div'),
                 viewModel = new BGoViewModel(bgoGame),
                 boardView = new BGoSvgBoardView(domContainer, viewModel),
-                i,
-                j;
+                i;
 
             for (i = 0; i < bgoGame.numberOfPoints; i += 1) {
 
@@ -340,7 +338,7 @@ describe('SVG Board View', function () {
                 viewModel.boardState[i].owner(BGo.White);
 
                 // Assert
-                expect(boardView.getPointElement(i, j).textContent).toBe(BGo.White);
+                expect(boardView.getPointElement(i).textContent).toBe(BGo.White);
             }
         });
 
@@ -350,8 +348,7 @@ describe('SVG Board View', function () {
             var domContainer = document.createElement('div'),
                 viewModel = new BGoViewModel(bgoGame),
                 boardView,
-                i,
-                j;
+                i;
 
             // Start all points in the illegal move state.
             for (i = 0; i < bgoGame.numberOfPoints; i += 1) {
@@ -367,7 +364,7 @@ describe('SVG Board View', function () {
                 viewModel.boardState[i].owner(BGo.Empty);
 
                 // Assert
-                expect(boardView.getPointElement(i, j).textContent).toBe(BGo.Empty);
+                expect(boardView.getPointElement(i).textContent).toBe(BGo.Empty);
             }
         });
 
@@ -377,8 +374,7 @@ describe('SVG Board View', function () {
             var domContainer = document.createElement('div'),
                 viewModel = new BGoViewModel(bgoGame),
                 boardView,
-                i,
-                j;
+                i;
 
             // Start all points in the illegal move state.
             for (i = 0; i < bgoGame.numberOfPoints; i += 1) {
@@ -393,7 +389,7 @@ describe('SVG Board View', function () {
                 viewModel.boardState[i].ko(false);
 
                 // Assert
-                expect(boardView.getPointElement(i, j).getAttribute('class')).toBe('');
+                expect(boardView.getPointElement(i).getAttribute('class')).toBe('');
             }
         });
 
@@ -421,7 +417,7 @@ describe('SVG Board View', function () {
 describe('BGo View Model', function () {
     "use strict";
 
-    var bgoGame = { numberOfPoints: 9 * 9, playMove: function (index) { throw 'Unexpected call to playMove'; }}
+    var bgoGame = { numberOfPoints: 9 * 9, playMove: function (index) { throw 'Unexpected call to playMove'; } };
 
     it('calls bgoGame.playMove when BGoViewModel.playMove is called.', function () {
 
@@ -444,6 +440,106 @@ describe('BGo View Model', function () {
         viewModel.playMove(1);
 
         expect(bgoGame.playMove).toHaveBeenCalledWith(1);
+
+    });
+});
+
+describe('', function () {
+    "use strict";
+
+    var eventHandler =
+        {
+            blackStonePlayed: function (arg1, arg2) { throw 'Unexpected call to blackStonePlayed'; },
+            whiteStonePlayed: function (arg1, arg2) { throw 'Unexpected call to whiteStonePlayed'; },
+            cannotPlayOnAnotherStone: function (arg1, arg2) { throw 'Unexpected call to cannotPlayOnAnotherStone'; },
+        },
+        hookEventHandlers = function (bGoGame, eventHandler) {
+            bGoGame.bind(BGo.Events.BlackStonePlayed, eventHandler.blackStonePlayed);
+            bGoGame.bind(BGo.Events.WhiteStonePlayed, eventHandler.whiteStonePlayed);
+            bGoGame.bind(BGo.Events.CannotPlayOnAnotherStone, eventHandler.cannotPlayOnAnotherStone);
+        },
+        board = {};
+
+    describe('can have it\'s events be bound to event handlers', function () {
+
+        it('Will throw an error if it is an unhandled event type', function () {
+            var bGoGame = new BGoGame(board);
+
+            expect(function () { bGoGame.bind('blahblahblah', function () { }); }).toThrow('Cannot bind to unsupported' +
+                ' event.');
+
+        });
+
+        it('Will support a BGo.Events.BlackStonePlayed event.', function () {
+
+            var bGoGame = new BGoGame(board);
+            bGoGame.bind(BGo.Events.BlackStonePlayed, function () { });
+
+        });
+
+        it('Will support a BGo.Events.WhiteStonePlayed event.', function () {
+
+            var bGoGame = new BGoGame(board);
+            bGoGame.bind(BGo.Events.WhiteStonePlayed, function () { });
+
+        });
+
+    });
+
+    it('adds stones that have been played in legal positions', function () {
+
+        var bGoGame = new BGoGame(board),
+            index = 0;
+
+        spyOn(eventHandler, 'blackStonePlayed');
+        hookEventHandlers(bGoGame, eventHandler);
+
+        bGoGame.playMove(0);
+
+        expect(eventHandler.blackStonePlayed).toHaveBeenCalledWith(0);
+
+    });
+
+    it('alternates between black and white after each move', function () {
+
+        var bGoGame = new BGoGame(board),
+            index = 0;
+
+        spyOn(eventHandler, 'blackStonePlayed');
+        spyOn(eventHandler, 'whiteStonePlayed');
+        hookEventHandlers(bGoGame, eventHandler);
+
+        bGoGame.playMove(0);
+        bGoGame.playMove(1);
+        bGoGame.playMove(2);
+        bGoGame.playMove(3);
+
+        expect(eventHandler.blackStonePlayed).toHaveBeenCalledWith(0);
+        expect(eventHandler.whiteStonePlayed).toHaveBeenCalledWith(1);
+        expect(eventHandler.blackStonePlayed).toHaveBeenCalledWith(2);
+        expect(eventHandler.whiteStonePlayed).toHaveBeenCalledWith(3);
+
+    });
+
+    it('does not allow moves to be played where there is already a stone', function () {
+
+        var bGoGame = new BGoGame(board),
+            index = 0;
+
+        spyOn(eventHandler, 'blackStonePlayed');
+        spyOn(eventHandler, 'whiteStonePlayed');
+        spyOn(eventHandler, 'cannotPlayOnAnotherStone');
+        hookEventHandlers(bGoGame, eventHandler);
+
+        bGoGame.playMove(0);
+        bGoGame.playMove(1);
+        bGoGame.playMove(1);
+        bGoGame.playMove(2);
+
+        expect(eventHandler.blackStonePlayed).toHaveBeenCalledWith(0);
+        expect(eventHandler.whiteStonePlayed).toHaveBeenCalledWith(1);
+        expect(eventHandler.cannotPlayOnAnotherStone).toHaveBeenCalledWith(1);
+        expect(eventHandler.blackStonePlayed).toHaveBeenCalledWith(2);
 
     });
 });

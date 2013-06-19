@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" xmlns="http://www.w3.org/1999/html"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>B-GO.NET</title>
+        <meta name="description" content="A HTML5 based go/baduk/weiqi game.">
+        <meta name="viewport" content="width=device-width">
+
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <!-- <link rel="stylesheet" href="css/main.css"> -->
+        <script src="js/vendor/modernizr-2.6.2.min.js"></script>
+        <script src="js/plugins.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+
+        <style>
+
+            body {
+                font-family: Arial;
+                background-color: #FFFFFF;
+                color: #000000;
+                text-decoration: none;
+                word-spacing: normal;
+                text-align: left;
+                letter-spacing: 0;
+                line-height: 1.5em;
+                font-size: 0.9em;
+                color: white;
+
+                background-attachment: fixed !important;
+                background: #c8d7dc; /* Old browsers */
+                background: -moz-linear-gradient(top, #c8d7dc 0%, #e3eaed 63%, #f2f5f6 100%); /* FF3.6+ */
+                background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c8d7dc), color-stop(63%,#e3eaed), color-stop(100%,#f2f5f6)); /* Chrome,Safari4+ */
+                background: -webkit-linear-gradient(top, #c8d7dc 0%,#e3eaed 63%,#f2f5f6 100%); /* Chrome10+,Safari5.1+ */
+                background: -o-linear-gradient(top, #c8d7dc 0%,#e3eaed 63%,#f2f5f6 100%); /* Opera 11.10+ */
+                background: -ms-linear-gradient(top, #c8d7dc 0%,#e3eaed 63%,#f2f5f6 100%); /* IE10+ */
+                background: linear-gradient(to bottom, #c8d7dc 0%,#e3eaed 63%,#f2f5f6 100%); /* W3C */
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c8d7dc', endColorstr='#f2f5f6',GradientType=0 ); /* IE6-9 */
+            }
+
+            a:link {color:#000000;}      /* unvisited link */
+            a:visited {color:#000000;}  /* visited link */
+            a:hover {color:#000000;}  /* mouse over link */
+            a:active {color:#000000;}  /* selected link */
+
+            a:link {text-decoration:none;}
+            a:visited {text-decoration:none;}
+            a:hover {text-decoration:underline;}
+            a:active {text-decoration:none;}
+
+            div#topbar {
+                white-space: nowrap;
+                min-width: 750px;
+                height:50px;
+                text-align: center;
+                background: black;
+                /* IE10 Consumer Preview */
+                background-image: -ms-linear-gradient(top left, #FFFFFF 0%, #000000 100%);
+
+                /* Mozilla Firefox */
+                background-image: -moz-linear-gradient(top left, #FFFFFF 0%, #000000 100%);
+
+                /* Opera */
+                background-image: -o-linear-gradient(top left, #FFFFFF 0%, #000000 100%);
+
+                /* Webkit (Safari/Chrome 10) */
+                background-image: -webkit-gradient(linear, left top, right bottom, color-stop(0, #FFFFFF), color-stop(1, #000000));
+
+                /* Webkit (Chrome 11+) */
+                background-image: -webkit-linear-gradient(top left, #FFFFFF 0%, #000000 100%);
+
+                /* W3C Markup, IE10 Release Preview */
+                background-image: linear-gradient(to bottom right, #FFFFFF 0%, #000000 100%);
+            }
+
+            div#topbar img {
+                width: 150px;
+                height: 50px;
+            }
+
+            div#topbar div#logo {
+                float:left;
+            }
+
+            div#topbar div#my-account {
+                float:right;
+                height:50px;
+                margin-top: 5px;
+                margin-right: 5px;
+                text-align: right;
+                line-height: 1.25em;
+                font-size: 0.75em;
+            }
+
+            div#topbar div#my-account div#sign-in-options {
+                margin-top: 10px;
+            }
+
+            div#topbar div#my-account a {
+                margin-right: 4px;
+            }
+
+            div#topbar div#my-account a:link {color:#FFFFFF;} /* unvisited link */
+            div#topbar div#my-account a:visited {color:#FFFFFF;}  /* visited link */
+            div#topbar div#my-account a:hover {color:#FFFFFF;} /* mouse over link */
+            div#topbar div#my-account a:active {color:#FFFFFF;} /* selected link */
+
+            div#topbar div#my-account a#login {
+                border-left-style:solid;
+                border-left-width:1px;
+                border-left-color:white;
+                padding-left: 5px;
+            }
+
+            div#topbar nav {
+                white-space: nowrap;
+                overflow: hidden;
+            }
+
+            div#topbar nav a {
+                display: inline-block;
+                margin-top: 23px;
+                padding-top: 2px;
+                padding-left: 15px;
+                padding-right: 15px;
+                padding-bottom: 1px;
+                text-align: center;
+                color: white;
+                background: #b5bdc8; /* Old browsers */
+                background: -moz-linear-gradient(top, #b5bdc8 0%, #828c95 10%, #09151c 80%); /* FF3.6+ */
+                background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#b5bdc8), color-stop(10%,#828c95), color-stop(80%,#09151c)); /* Chrome,Safari4+ */
+                background: -webkit-linear-gradient(top, #b5bdc8 0%,#828c95 10%,#09151c 80%); /* Chrome10+,Safari5.1+ */
+                background: -o-linear-gradient(top, #b5bdc8 0%,#828c95 10%,#09151c 80%); /* Opera 11.10+ */
+                background: -ms-linear-gradient(top, #b5bdc8 0%,#828c95 10%,#09151c 80%); /* IE10+ */
+                background: linear-gradient(to bottom, #b5bdc8 0%,#828c95 10%,#09151c 80%); /* W3C */
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b5bdc8', endColorstr='#09151c',GradientType=0 ); /* IE6-9 */
+
+                border: black;
+                border-style: solid;
+                border-width: 1px;
+                -moz-border-radius-topright: 15px;
+                border-top-right-radius: 15px;
+                -moz-border-radius-topleft: 15px;
+                border-top-left-radius: 15px;
+                border-bottom-style:solid;
+                border-bottom-width:1px;
+                border-bottom-color:black;
+                margin-bottom: 1px;
+            }
+
+            div#topbar nav a:target {
+                color: black;
+                padding-top: 3px;
+                background: #f2f5f6; /* Old browsers */
+                background: -moz-linear-gradient(top, #f2f5f6 0%, #e3eaed 37%, #c8d7dc 100%); /* FF3.6+ */
+                background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f2f5f6), color-stop(37%,#e3eaed), color-stop(100%,#c8d7dc)); /* Chrome,Safari4+ */
+                background: -webkit-linear-gradient(top, #f2f5f6 0%,#e3eaed 37%,#c8d7dc 100%); /* Chrome10+,Safari5.1+ */
+                background: -o-linear-gradient(top, #f2f5f6 0%,#e3eaed 37%,#c8d7dc 100%); /* Opera 11.10+ */
+                background: -ms-linear-gradient(top, #f2f5f6 0%,#e3eaed 37%,#c8d7dc 100%); /* IE10+ */
+                background: linear-gradient(to bottom, #f2f5f6 0%,#e3eaed 37%,#c8d7dc 100%); /* W3C */
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f5f6', endColorstr='#c8d7dc',GradientType=0 ); /* IE6-9 */
+                border-bottom-style:none;
+                border-bottom-width:0;
+                padding-bottom: 2px;
+            }
+
+            div#main-container {
+
+                position: absolute;
+                top: 50px;
+                bottom: 0;
+                width:100%;
+            }
+
+            section#news-section article.article-item {
+                margin: 20px;
+                padding: 20px;
+                color: black;
+                background: white;
+                border-width: 1px;
+                border-style: solid;
+                border-color: black;
+                position: relative;
+                min-width: 660px;
+            }
+
+            section#news-section article.article-item div.article-title {
+                line-height: 1.5em;
+                font-size: 1em;
+                font-weight: bold;
+            }
+
+            section#news-section article.article-item div.article-published-date-time {
+                position:absolute;
+                top: 20px;
+                right: 20px;
+                line-height: 1.25em;
+                font-size: 0.75em;
+                font-weight: bold;
+            }
+
+            section#news-section article.article-item div.article-author {
+                line-height: 1.25em;
+                font-size: 0.75em;
+                font-style: italic;
+                padding-top: 5px;
+                padding-bottom: 5px;
+            }
+
+            section#news-section article.article-item div.article-comments a {
+                line-height: 1.5em;
+                font-size: 1.0em;
+                font-style: italic;
+                font-weight: bold;
+            }
+
+            section#news-section article.article-item div.article-content a {
+                line-height: 1.5em;
+                font-size: 1.0em;
+                font-style: italic;
+            }
+
+            section#news-section article.article-item a {
+                border-bottom-style: dashed;
+                border-bottom-width: 1px;
+                border-bottom-color: black;
+            }
+
+            section#news-section article.article-item a:link { /* unvisited link */
+                border-bottom-style: dashed;
+                border-bottom-width: 1px;
+                border-bottom-color: black;
+                text-decoration: none;
+            }
+            section#news-section article.article-item a:visited { /* visited link */
+                border-bottom-style: dashed;
+                border-bottom-width: 1px;
+                border-bottom-color: black;
+                text-decoration: none;
+            }
+            section#news-section article.article-item a:hover { /* mouse over link */
+                border-bottom-style: solid;
+                border-bottom-width: 1px;
+                border-bottom-color: black;
+                text-decoration: none;
+            }
+            section#news-section article.article-item a:active { /* selected link */
+                border-bottom-style: dashed;
+                border-bottom-width: 1px;
+                border-bottom-color: black;
+                text-decoration: none;
+            }
+
+            section#news-section article.article-item div.article-source a:link { /* unvisited link */
+                border-bottom-style: none;
+                text-decoration: none;
+            }
+            section#news-section article.article-item div.article-source a:visited { /* visited link */
+                border-bottom-style: none;
+                text-decoration: none;
+            }
+            section#news-section article.article-item div.article-source a:hover { /* mouse over link */
+                border-bottom-style: none;
+                text-decoration: none;
+            }
+            section#news-section article.article-item div.article-source a:active { /* selected link */
+                border-bottom-style: none;
+                text-decoration: none;
+            }
+
+            section#news-section article.article-item div.article-source {
+                text-align: right;
+            }
+
+            section#start-section {
+                display:none;
+            }
+
+            section#improve-section {
+                display:none;
+            }
+
+            section#play-section {
+                display:none;
+            }
+
+            section#watch-section {
+                display:none;
+            }
+
+        </style>
+
+        <div id="topbar">
+            <div id="logo">
+                <img src="http://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Baduk.jpg/770px-Baduk.jpg">
+            </div>
+            <div id="my-account">
+                <div id="sign-in-status">You are currently logged in as <span class="user-name">a Guest</span></div>
+                <div id="sign-in-options"><!--
+                    --><a id="signup" href="#signup">sign up</a><!--
+                    --><a id="login" href="#login">log in</a><!--
+             --></div>
+            </div>
+            <nav>
+                <a id="news" href="#news" class="selected">News</a><!--
+             --><a id="start" href="#start">Start</a><!--
+             --><a id="improve" href="#improve">Improve</a><!--
+             --><a id="play" href="#play">Play</a><!--
+             --><a id="watch" href="#watch">Watch</a>
+            </nav>
+        </div>
+        <div id="main-container">
+            <section id="news-section">
+                <article class="article-item">
+                    <div class="article-title"><a href="http://www.britgo.org/node/4354" class="article-link" target="_blank">BGA to host European Youth</a></div>
+                    <div class="article-published-date-time">Sun, 09 Jun 2013 19:06:15 +0000</div>
+                    <div class="article-author">tonyatkins</div>
+                    <div class="article-content"><div class="field field-type-text field-field-tournament-name">
+                        <div class="field-label">Tournament Name:&nbsp;</div>
+                        <div class="field-items">
+                            <div class="field-item odd">
+                                European Youth Go Championship        </div>
+                        </div>
+                    </div>
+                        <p>The BGA is to run the European Youth Go Championship 2014. It is being held on the weekend of 28th to 31st March 2014 at Butlin&#039;s in Bognor Regis, West Sussex. Young players from all over Europe are
+                            expected to attend and compete in three age categories. BGA members will be able to join the weekend as the British Go Congress is to be run alongside.</p></div>
+                    <div class="article-comments"><a href="http://www.britgo.org/node/4354#comments" class="article-comments-link" target="_blank">Read Comments</a></div>
+                    <div class="article-source"><a href="http://www.britgo.org/" title="British Go Association (BGA)" target="_blank"><img src="images/feeds/bga/bga_logo_50mm.png"></a></div>
+                </article>
+                <article class="article-item">
+                    <div class="article-title"><a href="http://www.usgo.org/news/2013/06/new-american-pro-andy-liu-sweeps-yknot3/" class="article-link" target="_blank">Andy Liu 1P Sweeps YKNOT3</a></div>
+                    <div class="article-published-date-time">Tue, 18 Jun 2013 00:15:51 +0000</div>
+                    <div class="article-author">Chris Garlock</div>
+                    <div class="article-content"><p>In the exciting concluding rounds to the third annual Young Kwon National Online Tournament, new American professional Andy Liu became this year&#8217;s champion, winning all five rounds. Liu earned professional status at last year&#8217;s</p> <p><a href="http://www.usgo.org/news/wp-content/uploads/2013/06/2013.06.17_YKNOT_ALiu-YZhang_Rd5.sgf">download SGF file</a></p> <p>first AGA professional qualification event, sponsored by TygemGO, which took place just prior to the US Go Congress in North Carolina. Liqun Liu 7D took second in the 2013 YKNOT, winning 4 out of 5. Other band winners include Aaron Ye 5D, Willis Huang 3D, Larry Qu 1K, Matthew Machado 5K, and Yuliang Huang 21K. The tournament took place over the first two weekends in June on KGS. There were a total of about 60 players, some of whom were new AGA members, and for others, this was their very first online tournament. YKNOT3 sponsor Young Kwon was on hand during the rounds to watch the games and comment. TD Karoline Burrall extended thanks to all of the players who participated in the tournament. &#8220;Thanks also to our fantastic sponsor Young Kwon,&#8221; added Burrall, &#8220;as well as the team of TDs including Dennis Wheeler, Todd Heidenreich, Jay Tabaniag, and Julie Burrall.&#8221;</p> <p>Andy Liu&#8217;s 5th-round game against Yue Zhang 7D &#8212; &#8220;Full of fighting and lively viewer commentary!&#8221; &#8212; is at right.</p></div>
+                    <div class="article-comments"><a href="http://www.usgo.org/news/2013/06/new-american-pro-andy-liu-sweeps-yknot3/#comments" class="article-comments-link" target="_blank">Read Comments</a></div>
+                    <div class="article-source"><a href="http://www.usgo.org/" title="American Go Association (AGA)" target="_blank"><img src="images/feeds/aga/agaban1.gif"></a></div>
+                </article>
+                <article class="article-item">
+                    <div class="article-title"><a href="http://eurogotv.com/index.php?menu=News&archief=1371561259" class="article-link">Wien-2013 Vienna International Go Tournament</a></div>
+                    <div class="article-source"><a href="http://eurogotv.com/" title="Euro Go TV" target="_blank"><img src="images/feeds/eurogotv/egt400x150.jpg" width="200px" height="75px"></a></div>
+                </article>
+                <article class="article-item">
+                    <div class="article-title"><a href="http://www.usgo.org/news/2013/06/new-american-pro-andy-liu-sweeps-yknot3/" class="article-link" target="_blank">Andy Liu 1P Sweeps YKNOT3</a></div>
+                    <div class="article-published-date-time">Tue, 18 Jun 2013 00:15:51 +0000</div>
+                    <div class="article-author">Chris Garlock</div>
+                    <div class="article-content"><p>In the exciting concluding rounds to the third annual Young Kwon National Online Tournament, new American professional Andy Liu became this year&#8217;s champion, winning all five rounds. Liu earned professional status at last year&#8217;s</p> <p><a href="http://www.usgo.org/news/wp-content/uploads/2013/06/2013.06.17_YKNOT_ALiu-YZhang_Rd5.sgf">download SGF file</a></p> <p>first AGA professional qualification event, sponsored by TygemGO, which took place just prior to the US Go Congress in North Carolina. Liqun Liu 7D took second in the 2013 YKNOT, winning 4 out of 5. Other band winners include Aaron Ye 5D, Willis Huang 3D, Larry Qu 1K, Matthew Machado 5K, and Yuliang Huang 21K. The tournament took place over the first two weekends in June on KGS. There were a total of about 60 players, some of whom were new AGA members, and for others, this was their very first online tournament. YKNOT3 sponsor Young Kwon was on hand during the rounds to watch the games and comment. TD Karoline Burrall extended thanks to all of the players who participated in the tournament. &#8220;Thanks also to our fantastic sponsor Young Kwon,&#8221; added Burrall, &#8220;as well as the team of TDs including Dennis Wheeler, Todd Heidenreich, Jay Tabaniag, and Julie Burrall.&#8221;</p> <p>Andy Liu&#8217;s 5th-round game against Yue Zhang 7D &#8212; &#8220;Full of fighting and lively viewer commentary!&#8221; &#8212; is at right.</p></div>
+                    <div class="article-comments"><a href="http://www.usgo.org/news/2013/06/new-american-pro-andy-liu-sweeps-yknot3/#comments" class="article-comments-link" target="_blank">Read Comments</a></div>
+                    <div class="article-source"><a href="http://www.usgo.org/" title="American Go Association (AGA)" target="_blank"><img src="images/feeds/aga/agaban1.gif"></a></div>
+                </article>
+                <article class="article-item">
+                    <div class="article-title"><a href="http://eurogotv.com/index.php?menu=News&archief=1371561259" class="article-link" target="_blank">Wien-2013 Vienna International Go Tournament</a></div>
+                    <div class="article-source"><a href="http://eurogotv.com/" title="Euro Go TV" target="_blank"><img src="images/feeds/eurogotv/egt400x150.jpg" width="200px" height="75px"></a></div>
+                </article>
+                <article class="article-item">
+                    <div class="article-title"><a href="http://www.usgo.org/news/2013/06/new-american-pro-andy-liu-sweeps-yknot3/" class="article-link" target="_blank">Andy Liu 1P Sweeps YKNOT3</a></div>
+                    <div class="article-published-date-time">Tue, 18 Jun 2013 00:15:51 +0000</div>
+                    <div class="article-author">Chris Garlock</div>
+                    <div class="article-content"><p>In the exciting concluding rounds to the third annual Young Kwon National Online Tournament, new American professional Andy Liu became this year&#8217;s champion, winning all five rounds. Liu earned professional status at last year&#8217;s</p> <p><a href="http://www.usgo.org/news/wp-content/uploads/2013/06/2013.06.17_YKNOT_ALiu-YZhang_Rd5.sgf">download SGF file</a></p> <p>first AGA professional qualification event, sponsored by TygemGO, which took place just prior to the US Go Congress in North Carolina. Liqun Liu 7D took second in the 2013 YKNOT, winning 4 out of 5. Other band winners include Aaron Ye 5D, Willis Huang 3D, Larry Qu 1K, Matthew Machado 5K, and Yuliang Huang 21K. The tournament took place over the first two weekends in June on KGS. There were a total of about 60 players, some of whom were new AGA members, and for others, this was their very first online tournament. YKNOT3 sponsor Young Kwon was on hand during the rounds to watch the games and comment. TD Karoline Burrall extended thanks to all of the players who participated in the tournament. &#8220;Thanks also to our fantastic sponsor Young Kwon,&#8221; added Burrall, &#8220;as well as the team of TDs including Dennis Wheeler, Todd Heidenreich, Jay Tabaniag, and Julie Burrall.&#8221;</p> <p>Andy Liu&#8217;s 5th-round game against Yue Zhang 7D &#8212; &#8220;Full of fighting and lively viewer commentary!&#8221; &#8212; is at right.</p></div>
+                    <div class="article-comments"><a href="http://www.usgo.org/news/2013/06/new-american-pro-andy-liu-sweeps-yknot3/#comments" class="article-comments-link" target="_blank">Read Comments</a></div>
+                    <div class="article-source"><a href="http://www.usgo.org/" title="American Go Association (AGA)" target="_blank"><img src="images/feeds/aga/agaban1.gif"></a></div>
+                </article>
+                <article class="article-item">
+                    <div class="article-title"><a href="http://eurogotv.com/index.php?menu=News&archief=1371561259" class="article-link" target="_blank">Wien-2013 Vienna International Go Tournament</a></div>
+                    <div class="article-source"><a href="http://eurogotv.com/" title="Euro Go TV" target="_blank"><img src="images/feeds/eurogotv/egt400x150.jpg" width="200px" height="75px"></a></div>
+                </article>
+            </section>
+
+            <section id="start-section">
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+                Start</br>
+            </section>
+
+            <section id="improve-section">
+                Improve
+            </section>
+
+            <section id="play-section">
+                Play
+            </section>
+
+            <section id="watch-section">
+                Watch
+            </section>
+
+        </div>
+
+        <!-- Google Analytics -->
+        <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40281474-1', 'b-go.net');
+  ga('send', 'pageview');
+        </script>
+
+    <script>
+        var newsTab = document.getElementById("news");
+        var newsSection = document.getElementById("news-section");
+
+        var startTab = document.getElementById("start");
+        var startSection = document.getElementById("start-section");
+
+        var improveTab = document.getElementById("improve");
+        var improveSection = document.getElementById("improve-section");
+
+        var playTab = document.getElementById("play");
+        var playSection = document.getElementById("play-section");
+
+        var watchTab = document.getElementById("watch");
+        var watchSection = document.getElementById("watch-section");
+
+        var signupLink = document.getElementById("signup");
+        var loginLink = document.getElementById("login");
+
+        newsTab.onclick = function() {
+            newsSection.style.display = "block";
+            startSection.style.display = "none";
+            improveSection.style.display = "none";
+            playSection.style.display = "none";
+            watchSection.style.display = "none";
+            window.location.hash = "news";
+            window.scrollTo(0, 0);
+            return false;
+        };
+
+        startTab.onclick = function() {
+            newsSection.style.display = "none";
+            startSection.style.display = "block";
+            improveSection.style.display = "none";
+            playSection.style.display = "none";
+            watchSection.style.display = "none";
+            window.location.hash = "start";
+            window.scrollTo(0, 0);
+            return false;
+        };
+
+        improveTab.onclick = function() {
+            newsSection.style.display = "none";
+            startSection.style.display = "none";
+            improveSection.style.display = "block";
+            playSection.style.display = "none";
+            watchSection.style.display = "none";
+            window.location.hash = "improve";
+            window.scrollTo(0, 0);
+            return false;
+        };
+
+        playTab.onclick = function() {
+            newsSection.style.display = "none";
+            startSection.style.display = "none";
+            improveSection.style.display = "none";
+            playSection.style.display = "block";
+            watchSection.style.display = "none";
+            window.location.hash = "play";
+            window.scrollTo(0, 0);
+            return false;
+        };
+
+        watchTab.onclick = function() {
+            newsSection.style.display = "none";
+            startSection.style.display = "none";
+            improveSection.style.display = "none";
+            playSection.style.display = "none";
+            watchSection.style.display = "block";
+            window.location.hash = "watch";
+            window.scrollTo(0, 0);
+            return false;
+        };
+
+        signupLink.onclick = function() {
+            window.location.hash = "signup";
+            window.scrollTo(0, 0);
+            return false;
+        };
+
+        loginLink.onclick = function() {
+            window.location.hash = "login";
+            window.scrollTo(0, 0);
+            return false;
+        };
+
+    </script>
+    </body>
+</html>

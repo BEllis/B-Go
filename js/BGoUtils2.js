@@ -59,4 +59,10 @@
     global.BGo.White = 'W';
     global.BGo.Empty = ' ';
 
+    global.BGo.Events = global.BGo.Events || {};
+    global.BGo.Events.BlackStonePlayed = 'blackStonePlayed';
+    global.BGo.Events.WhiteStonePlayed = 'whiteStonePlayed';
+    global.BGo.Events.CannotPlayOnAnotherStone = 'cannotPlayOnAnotherStone';
+
+
 }(window));
