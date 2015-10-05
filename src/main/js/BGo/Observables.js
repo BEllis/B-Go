@@ -1,0 +1,1 @@
+define(['BGo'], function(BGo) { BGo.Observables = this; return this; });

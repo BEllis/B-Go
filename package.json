@@ -1,0 +1,35 @@
+{
+  "name": "b-go",
+  "version": "0.0.1",
+  "description": "A javascript and HTML5 implementation of the game of go.",
+  "author": "Ben Ellis",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BEllis/B-Go"
+  },
+  "scripts": {
+    "test": "karma start --single-run --browsers Chrome,Firefox,Safari",
+    "start-testing": "livereload & karma start --no-single-run"
+  },
+  "dependencies": {
+    "jquery": "1.8.2",
+    "knockout": "2.1.0",
+    "koa": "1.0.0",
+    "requirejs": "2.1.20"
+  },
+  "devDependencies": {
+    "livereload": "0.3.7",
+    "karma": "0.13.10",
+    "karma-coverage": "0.5.2",
+    "karma-phantomjs-launcher": "0.2.1",
+    "karma-safari-launcher": "0.1.1",
+    "karma-firefox-launcher": "0.1.6",
+    "karma-chrome-launcher": "0.2.0",
+    "karma-jasmine": "0.3.6",
+    "karma-requirejs": "0.2.2",
+    "karma-jasmine-html-reporter-livereload": "1.0.0"
+  },
+  "preferGlobal": true,
+  "private": true
+}

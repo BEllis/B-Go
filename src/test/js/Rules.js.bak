@@ -1,0 +1,13 @@
+/*jslint browser: true*/
+/*global BGo:false, BGoGame: false, BGoViewModel:false, BGoSvgBoardView:false, BGoBasicCapturesView:false, BGoBasicCommandsView:false, describe, it, expect, spyOn */
+
+/*
+var g1 = null;
+var vm1 = null;
+var v1 = null;
+var v2 = null;
+var v3 = null;
+var commandsView = null;
+var playMove = function (x, y) { "use strict"; g1.viewModel.userClick(x, y); };
+*/
+

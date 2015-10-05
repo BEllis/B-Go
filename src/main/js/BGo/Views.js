@@ -1,0 +1,1 @@
+define(['BGo'], function(BGo) { BGo.Views = this; return this; });

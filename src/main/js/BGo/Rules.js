@@ -1,0 +1,1 @@
+define(['BGo'], function(BGo) { BGo.Rules = this; return this; });
