@@ -9,10 +9,13 @@
     "url": "https://github.com/BEllis/B-Go"
   },
   "scripts": {
+    "start": "node src/main/server.js",
     "test": "karma start --single-run --browsers Chrome,Firefox,Safari",
-    "start-testing": "livereload & karma start --no-single-run"
+    "start-testing": "node src/main/server.js & livereload & karma start --no-single-run"
   },
   "dependencies": {
+    "commander": "2.9.0",
+    "express": "4.13.3",
     "jquery": "1.8.2",
     "knockout": "2.1.0",
     "koa": "1.0.0",

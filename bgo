@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+
+var program = require('commander');
+program
+  .version('0.0.1')
+  .option('-h, --host <host>', 'Host')
+  .option('-p, --port <port>', 'Port')
+  .parse(process.argv);
+
+var server = require("./src/main/js/server.js");
+server.host = program.host;
+server.port = program.port;
+server.start();
